@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { Toaster } from "react-hot-toast"; // ✅ Añadido
-import { trackPage } from "./hooks/useAnalytics.js";
+import { trackPage } from "./Hooks/useAnalytics.js";
 
 // src/main.jsx o index.jsx
 import 'leaflet/dist/leaflet.css';
