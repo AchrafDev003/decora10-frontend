@@ -1,7 +1,7 @@
 // src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import AuthModal from "../components/LoginModal";
+import AuthModal from "../Components/LoginModal";
 import {
   getProfile,
   updateUser,
