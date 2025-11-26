@@ -11,7 +11,7 @@
     import 'bootstrap/dist/css/bootstrap.min.css';
     import 'bootstrap/dist/js/bootstrap.bundle.min.js';
     import "../css/colchoneria.css";
-    import AuthModal from "../components/LoginModal";
+    import AuthModal from "../Components/LoginModal";
     import logoColchon from "../assets/img/colchon10.png";
 
     const MARCA_COLORS = {

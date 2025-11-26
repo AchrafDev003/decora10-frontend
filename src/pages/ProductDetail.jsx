@@ -14,8 +14,8 @@ import {
 import { useCart } from "../Context/Carrito/CartContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ImageZoom from "../components/ImageMagnifier";
-import LoginModal from "../components/LoginModal";
+import ImageZoom from "../Components/ImageMagnifier";
+import LoginModal from "../Components/LoginModal";
 import "../css/ProductDetail.css";
 
 export default function ProductDetail() {
