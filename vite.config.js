@@ -3,14 +3,8 @@ import react from "@vitejs/plugin-react-swc";
 
 export default defineConfig({
   plugins: [react()],
-
-  // Necesario para React Router en Vercel
   build: {
     outDir: "dist",
     emptyOutDir: true,
-  },
-
-  server: {
-    historyApiFallback: true,
   },
 });
