@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../css/NewsletterModal.css';
-import newsletterImg from '../assets/img/newsletter.jpg';
+import newsletterImg from '/img/newsletter.jpg';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 

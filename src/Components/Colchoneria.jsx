@@ -11,7 +11,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "../css/colchoneria.css";
 import AuthModal from "./LoginModal";
-import logoColchon from "../assets/img/colchon10.png"; // importa el logo
+import logoColchon from "/img/colchon10.png"; // importa el logo
 
 // ...
 
@@ -100,7 +100,7 @@ export default function Colchoneria() {
         name: producto.name,
         price: finalPrice,
         promo_price: finalPrice,
-        image: producto.images?.[0]?.image_path ?? "/assets/img/placeholder.jpg",
+        image: producto.images?.[0]?.image_path ?? "/img/ITEM Home.jpg",
         measure,
       }, 1);
       toast.success("Añadido al carrito");
@@ -170,7 +170,7 @@ export default function Colchoneria() {
                             );
                           }) : (
                             <div className="carousel-item active">
-                              <img src="/assets/img/placeholder.jpg" className="d-block w-100 colchoneria-img" alt={producto.name} />
+                              <img src="/img/ITEM Home.jpg" className="d-block w-100 colchoneria-img" alt={producto.name} />
                               <Link to={`/producto/${producto.id}`} className="overlay-hover-link">Ver producto</Link>
                             </div>
                           )}

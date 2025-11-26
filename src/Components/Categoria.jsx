@@ -42,10 +42,11 @@ export default function Categoria() {
                     <div key={cat.id} className="col-6 col-md-3">
                       <div className="card bg-dark text-white border-0">
                         <img
-                          src={cat.image_url || "./src/assets/img/default.jpg"}
-                          className="card-img"
-                          alt={cat.name}
-                        />
+  src={cat.image_url || "/img/ITEM Home.jpg"}
+  className="card-img"
+  alt={cat.name}
+/>
+
                         <div className="card-img-overlay d-flex align-items-end justify-content-center bg-grey bg-opacity-50">
                           <button
                             onClick={() => handleCategoryClick(cat.id)}
