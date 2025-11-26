@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -31,9 +31,9 @@
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.503.0",
     "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-bootstrap": "^2.10.10",
     "react-confetti": "^6.4.0",
-    "react-dom": "^19.0.0",
     "react-draggable": "^4.5.0",
     "react-ga4": "^2.1.0",
     "react-helmet": "^6.1.0",
