@@ -1,0 +1,115 @@
+.contact-page {
+  background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+  position: relative;
+  padding: 2rem;
+  overflow: visible; /* importante para que las animaciones no corten el mapa */
+}
+
+.contact-logo {
+  width: 120px;
+  border-radius: 50%;
+  border: 3px solid #ff9800;
+  filter: drop-shadow(0 0 15px #ff9800);
+  transition: transform 0.3s;
+}
+
+.contact-logo:hover {
+  transform: scale(1.1);
+}
+
+.text-neon {
+  color: #39ff14;
+  text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14, 0 0 20px #39ff14;
+}
+
+.contact-icon {
+  font-size: 2.5rem;
+  color: #39ff14;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.contact-icon:hover {
+  transform: scale(1.3);
+  color: #0ff;
+}
+
+.info-card {
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid #39ff14;
+  box-shadow: 0 0 20px #39ff14;
+  max-width: 350px;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  text-align: center;
+}
+
+.neon-lines {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(57, 255, 20, 0.05),
+    rgba(57, 255, 20, 0.05) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  pointer-events: none;
+  animation: moveLines 20s linear infinite;
+}
+
+@keyframes moveLines {
+  0% { transform: translate(-50%, -50%); }
+  100% { transform: translate(50%, 50%); }
+}
+
+.neon-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(57,255,20,0.1) 1px, transparent 1px);
+  background-size: 15px 15px;
+  pointer-events: none;
+  animation: floatParticles 10s linear infinite;
+}
+
+@keyframes floatParticles {
+  0% { background-position: 0 0; }
+  100% { background-position: 100px 100px; }
+}
+
+.neon-marker {
+  filter: drop-shadow(0 0 5px #39ff14) drop-shadow(0 0 10px #39ff14);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
+/* Corrección mapa */
+.contact-map {
+  width: 100%;
+  max-width: 900px;
+  height: 400px;
+  margin-bottom: 3rem;
+}
+
+.contact-map .leaflet-container {
+  border: 2px solid #39ff14;
+  box-shadow: 0 0 20px #39ff14;
+}
+.neon-marker {
+  filter: drop-shadow(0 0 6px #00eaff);
+  transition: transform 0.2s ease;
+ 
+}
+.neon-marker:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 10px #00ffff);
+}
+
+
+/* Quitar overflow ocultando cosas */

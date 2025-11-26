@@ -1,0 +1,62 @@
+/* Estilo para el botón principal */
+.promo-trigger {
+    max-width: 450px;
+    margin: 3rem auto;
+    background-color: #000;
+    color: #fff;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 2rem;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+  }
+  
+  .promo-trigger:hover {
+    transform: scale(1.03);
+  }
+  
+  /* Animación del icono (pulse infinito) */
+  @keyframes pulseIcon {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(2);
+      opacity: 0.7;
+    }
+  }
+  
+  .animate-icon {
+    animation: pulseIcon 1.5s infinite ease-in-out;
+    color: #FFD700;
+  }
+  
+  /* Modal personalizado */
+  .custom-modal {
+    border-radius: 1rem;
+    overflow: hidden;
+    background-color: #fff;
+  }
+  
+  .custom-modal .form-label {
+    font-weight: 600;
+  }
+  
+  .custom-modal .form-control {
+    border-radius: 0.5rem;
+  }
+  
+  .custom-modal .btn-dark {
+    background-color: #000;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+  }
+  
+  .custom-modal a {
+    color: #000;
+    text-decoration: underline;
+  }
+  

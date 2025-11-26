@@ -1,0 +1,467 @@
+/* Sección principal */
+.colchoneria-section {
+  background: #f5f5f5;
+  width: 100%;
+  padding: 2rem 0;
+  box-sizing: border-box;
+}
+
+/* Header: logo, título y subtítulo */
+.colchoneria-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.colchoneria-logo {
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+.colchoneria-title {
+  font-family: 'Great Vibes', cursive;
+  font-size: 5rem;
+  font-weight: bold;
+  color: #2e7d32;
+  margin-bottom: 1rem;
+}
+
+.colchoneria-subtitle {
+  font-size: 1.6rem;
+  color: #555;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Rincones de marca */
+.colchoneria-rincon {
+  position: relative;
+  margin-bottom: 3rem;
+  padding-left: 0; /* ya no hace falta reservar espacio */
+  display: flex;
+  align-items: flex-start;
+}
+
+.colchoneria-brand-title {
+  position: sticky;
+  left: 0;
+  top: 100px; /* ajusta si quieres que quede más alta o más baja */
+  width: 60px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-weight: bold;
+  color: #fff;
+  padding: 8px 2px;
+  border-radius: 0 8px 8px 0;
+  text-align: center;
+  z-index: 10;
+  flex-shrink: 0; /* no se reduce */
+}
+
+/* Ajustar el contenedor de productos para dejar sitio */
+.colchoneria-row {
+  margin-left: 0px; /* igual que el ancho de la barra */
+  margin-right: 10px;
+  flex: 1;
+}
+
+
+.colchoneria-brand-title.biolife { background-color: #d32f2f; }
+.colchoneria-brand-title.dupen { background-color: #000; }
+.colchoneria-brand-title.flex { background-color: #1976d2; }
+
+/* Row de tarjetas 
+.colchoneria-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-left: 0;
+  justify-content: flex-start;
+}*/
+
+/* Wrapper de cada tarjeta */
+.colchoneria-row > div {
+  flex: 1 1 calc(33.333% - 1rem); /* 3 tarjetas por fila en desktop */
+  min-width: 240px;
+  box-sizing: border-box;
+}
+
+/* Tarjeta */
+.colchoneria-card {
+  display: flex;
+  flex-direction: row;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 0;
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+  height: 100%; /* igualar altura de todas */
+}
+
+/* Carousel en tarjeta */
+.colchoneria-img {
+  flex: 2 1 50%;
+  height: 220px;
+  
+  object-fit: cover;
+}
+
+/* Overlay hover */
+.overlay-hover-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  background: rgba(0,0,0,0.3);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.overlay-hover-link:hover { opacity: 1; }
+
+/* Paleta vertical */
+.colchoneria-palette {
+  width: 4px;
+  background-color: currentColor;
+}
+
+/* Body de la tarjeta */
+.colchoneria-card-body {
+  flex: 1 1 40%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Descripción */
+.colchoneria-description {
+  font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Precio */
+.colchoneria-price {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Botones medidas */
+.colchoneria-measures button {
+  margin-right: 0.5rem;
+}
+
+/* Carousel indicators */
+.carousel-indicators button {
+  background-color: brown;
+}
+
+.carousel-indicators .active {
+  background-color: #8B4513;
+}
+
+/* Media queries */
+@media (max-width: 992px) {
+  .colchoneria-row > div {
+    flex: 1 1 calc(50% - 1rem); /* 2 por fila en tablet */
+  }
+  .colchoneria-img { flex: 1 1 50%; }
+  .colchoneria-card-body { flex: 1 1 50%; }
+}
+
+/* Media queries para móviles */
+/* ✅ Corrección específica para móviles */
+@media (max-width: 576px) {
+  /* fuerza el ancho completo de cada parte de la tarjeta */
+  .colchoneria-card .col-6,
+  .colchoneria-card .col-5,
+  .colchoneria-card .col-7 {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+   colchoneria-rincon {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+  }
+  /* asegura que las imágenes llenen el contenedor */
+  .colchoneria-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: center;
+  }
+  .colchoneria-card {
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+}
+.colchoneria-brand-title {
+  position: sticky;
+  left: 0;
+  top: 100px; /* ajusta si quieres que quede más alta o más baja */
+  width: 60px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-weight: bold;
+  color: #fff;
+  padding: 8px 2px;
+  border-radius: 0 8px 8px 0;
+  text-align: center;
+  z-index: 10;
+  flex-shrink: 0; /* no se reduce */
+}
+  .colchoneria-row {
+    flex: 1;
+    margin-left: 10px; /* deja espacio a la izquierda para la barra */
+  }
+
+
+
+  /* evita que el carrusel se comprima */
+  .carousel,
+  .carousel-inner,
+  .carousel-item {
+    width: 100%;
+    overflow: hidden;
+  }
+}
+/* Sección principal */
+.cp-section {
+  background: #f5f5f5;
+  width: 100%;
+  padding: 2rem 0;
+  box-sizing: border-box;
+}
+
+/* Header: logo, título y subtítulo */
+.cp-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.cp-logo {
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+.cp-title {
+  font-family: 'Great Vibes', cursive;
+  font-size: 5rem;
+  font-weight: bold;
+  color: #2e7d32;
+  margin-bottom: 1rem;
+}
+
+.cp-subtitle {
+  font-size: 1.6rem;
+  color: #555;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Rincones de marca */
+.cp-rincon {
+  position: relative;
+  margin-bottom: 3rem;
+  padding-left: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.cp-brand-title {
+  position: sticky;
+  left: 0;
+  top: 100px;
+  width: 60px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-weight: bold;
+  color: #fff;
+  padding: 8px 2px;
+  border-radius: 0 8px 8px 0;
+  text-align: center;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.cp-brand-title.biolife { background-color: #d32f2f; }
+.cp-brand-title.dupen { background-color: #000; }
+.cp-brand-title.flex { background-color: #1976d2; }
+
+/* Contenedor de productos */
+.cp-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-left: 0;
+  justify-content: flex-start;
+}
+
+.cp-row > div {
+  flex: 1 1 calc(33.333% - 1rem); /* 3 tarjetas por fila en desktop */
+  min-width: 240px;
+  box-sizing: border-box;
+}
+
+/* Tarjeta */
+.cp-card {
+  display: flex;
+  flex-direction: row;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 0;
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+  height: 100%;
+}
+
+/* Carousel en tarjeta */
+.cp-img {
+  width: 100%;          /* Ancho completo de la tarjeta */
+  height: 250px;        /* Alto fijo para todas las imágenes */
+  object-fit: cover;    /* Recorta la imagen si es necesario para cubrir el área */
+  border-radius: 4px;   /* Opcional: bordes redondeados */
+}
+
+
+/* Overlay hover */
+.cp-overlay-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  background: rgba(0,0,0,0.3);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.cp-overlay-link:hover { opacity: 1; }
+
+/* Paleta vertical */
+.cp-palette {
+  width: 4px;
+  background-color: currentColor;
+}
+
+/* Body de la tarjeta */
+.cp-card-body {
+  flex: 1 1 40%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Descripción */
+.cp-description {
+  font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Precio */
+.cp-price {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Botones medidas */
+.cp-measures button {
+  margin-right: 0.5rem;
+}
+
+/* Carousel indicators */
+.carousel-indicators button {
+  background-color: brown;
+}
+
+.carousel-indicators .active {
+  background-color: #8B4513;
+}
+
+/* Media queries */
+@media (max-width: 992px) {
+  .cp-row > div {
+    flex: 1 1 calc(50% - 1rem); /* 2 por fila en tablet */
+  }
+  .cp-img { flex: 1 1 50%; }
+  .cp-card-body { flex: 1 1 50%; }
+}
+
+@media (max-width: 576px) {
+  .cp-card .col-6,
+  .cp-card .col-5,
+  .cp-card .col-7 {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  .cp-rincon {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+  }
+  .cp-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: center;
+  }
+  .cp-card {
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+  }
+  .cp-brand-title {
+    position: sticky;
+    left: 0;
+    top: 100px;
+    width: 60px;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    font-weight: bold;
+    color: #fff;
+    padding: 8px 2px;
+    border-radius: 0 8px 8px 0;
+    text-align: center;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+  .cp-row {
+    flex: 1;
+    margin-left: 10px;
+  }
+  .carousel,
+  .carousel-inner,
+  .carousel-item {
+    width: 100%;
+    overflow: hidden;
+  }
+}
+

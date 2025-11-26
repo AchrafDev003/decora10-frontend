@@ -1,0 +1,211 @@
+:root {
+  --bs-rose: #ddb4a9;
+  --bs-brown: #522020;
+  --bs-black: #000;
+}
+
+.shop-page {
+  background: linear-gradient(160deg, #f7e1dd, #ffe8d5);
+  color: var(--bs-black);
+  font-family: 'Inter', sans-serif;
+}
+
+/* ===========================
+   🎨 SPINNER
+=========================== */
+.spinner-border.text-success {
+  color: var(--bs-brown) !important;
+}
+
+/* ===========================
+   🎨 BOTONES
+=========================== */
+/* ===========================
+   🎨 BOTONES
+=========================== */
+.btn-success {
+  background-color: var(--bs-brown);
+  color: #fff;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  background-color: var(--bs-rose);
+  color: var(--bs-black);
+}
+.product-card {
+  border-radius: 16px;
+  
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  
+}
+
+.img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+}
+
+.img-wrapper .carousel-item img {
+  width: 100%;
+  height: 280px; /* igual que tu contenedor */
+  object-fit: cover;
+  object-position: center 80%;
+  transition: transform 0.4s ease;
+}
+
+.img-wrapper:hover img {
+  transform: scale(1.08);
+}
+
+.overlay-link {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.4s ease;
+  text-decoration: none;
+}
+.img-wrapper:hover .overlay-link {
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 1;
+}
+
+
+
+/* ===========================
+   🎨 TEXTOS
+=========================== */
+.card-title {
+  color: var(--bs-brown);
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #522020 !important;
+}
+
+.fw-bold {
+  color: var(--bs-black);
+}
+
+.store-price span {
+  color: var(--bs-brown);
+}
+.categories-wrapper {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  padding: 1rem 0;
+}
+
+/* Móvil: 2 columnas */
+@media (max-width: 575px) {
+  .categories-wrapper {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablet: 3 columnas */
+@media (min-width: 576px) and (max-width: 991px) {
+  .categories-wrapper {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Ordenador: auto-fit */
+@media (min-width: 992px) {
+  .categories-wrapper {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}
+
+.category-card {
+  background: var(--bs-black);
+  color: var(--bs-rose);
+  border-radius: 1rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  text-align: center;
+  box-shadow: 0 0 5px var(--bs-brown);
+}
+
+.category-card:hover {
+  animation: electric-glow 1s infinite alternate;
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px var(--bs-rose), 0 0 25px var(--bs-brown), 0 0 35px var(--bs-black);
+}
+
+.category-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--bs-rose);
+  transition: transform 0.3s ease-in-out;
+}
+
+.category-card:hover .category-img {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.category-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+@keyframes electric-glow {
+  0% { box-shadow: 0 0 10px var(--bs-brown); }
+  50% { box-shadow: 0 0 20px var(--bs-rose), 0 0 30px var(--bs-brown); }
+  100% { box-shadow: 0 0 15px var(--bs-black), 0 0 25px var(--bs-brown), 0 0 35px var(--bs-rose); }
+}
+
+/* shop.css */
+.pagination-modern .page-item .page-link {
+  background-color: #f8f9fa;
+  color: #333;
+  font-weight: 600;
+  border-radius: 12px;
+  margin: 0 4px;
+  min-width: 45px;
+  min-height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.pagination-modern .page-item .page-link:hover {
+  background-color: #28a745;
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.pagination-modern .page-item.active .page-link {
+  background-color: #28a745;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.pagination-modern .page-item.disabled .page-link {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
