@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useCart } from "../Context/Carrito/CartContext";
 import { useAuth } from "../Context/AuthContext";
-import logo from "/img/dec10.png";
+import logo from "/images/dec10.png";
 import CartIcon from "./CartIcon";
 import { getCategories } from "../services/api";
 import { FaUser, FaSearch, FaHome, FaStore, FaThList, FaPenNib, FaEnvelope } from "react-icons/fa";

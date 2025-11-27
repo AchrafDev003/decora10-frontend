@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../css/NewsletterModal.css';
-import newsletterImg from '/img/newsletter.jpg';
+import newsletterImg from '/images/newsletter.jpg';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import * as bootstrap from 'bootstrap'; // FIX AQUI 🔥

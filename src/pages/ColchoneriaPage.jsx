@@ -12,7 +12,7 @@
     import 'bootstrap/dist/js/bootstrap.bundle.min.js';
     import "../css/colchoneria.css";
     import AuthModal from "../Components/LoginModal";
-    import logoColchon from "../assets/img/colchon10.png";
+    import logoColchon from "../assets/images/colchon10.png";
 
     const MARCA_COLORS = {
     Biolife: "#d32f2f",

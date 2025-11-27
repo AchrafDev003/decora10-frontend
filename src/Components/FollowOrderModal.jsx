@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Modal, Button, Form, Spinner } from "react-bootstrap";
 import { followOrder } from "../services/api";
 import { toast } from "react-toastify";
-import telefonoIcono from "/img/dec10.png"; // ruta a tu icono
+import telefonoIcono from "/images/dec10.png"; // ruta a tu icono
 
 // Dentro del JSX
 {telefonoIcono && (

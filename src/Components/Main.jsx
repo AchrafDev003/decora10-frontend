@@ -221,7 +221,7 @@ export default function Main() {
                         })
                       : (
                         <div className="carousel-item active">
-                          <img src="/img/ITEM Home.jpg" className="d-block w-100" alt={producto.name} style={{ height: "220px", objectFit: "cover" }} />
+                          <img src="/images/ITEM Home.jpg" className="d-block w-100" alt={producto.name} style={{ height: "220px", objectFit: "cover" }} />
                         </div>
                       )}
                   </div>
