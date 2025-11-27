@@ -3,6 +3,9 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { Toaster } from "react-hot-toast"; // ✅ Añadido
 import { trackPage } from "./Hooks/useAnalytics.js";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
 
 // src/main.jsx o index.jsx
 import 'leaflet/dist/leaflet.css';
