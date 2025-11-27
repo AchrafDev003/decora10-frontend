@@ -1,8 +1,27 @@
 import { useState, useEffect, useRef } from "react";
-import { getHeroItems, getImageUrl } from "../services/api";
+import { getHeroItems } from "../services/api";
 import principalImg from "/images/galeria_04.jpg";
 import "../css/Hero.css";
 
+// =========================
+// 🔹 Helpers
+// =========================
+const getMediaUrl = (item) => {
+  const media = item.media_filename;
+
+  if (!media) return "/images/default-product.jpg";
+
+  if (media.startsWith("https://") || media.startsWith("http://")) return media;
+
+  const API = import.meta.env.VITE_API_URL;
+  return `${API.replace(/\/$/, "")}/storage/${media.replace(/^\/?/, "")}`;
+};
+
+const isVideo = (item) => item.media_type?.startsWith("video");
+
+// =========================
+// 🔹 Hero Component
+// =========================
 export default function Hero() {
   const [items, setItems] = useState([]);
   const [current, setCurrent] = useState(0);
@@ -15,12 +34,11 @@ export default function Hero() {
   useEffect(() => {
     const fetchItems = async () => {
       setLoading(true);
-
       try {
         const result = await getHeroItems();
         if (result.success && Array.isArray(result.data)) {
           const publishedItems = result.data
-            .filter(item => item.status === "published")
+            .filter((item) => item.status === "published")
             .sort((a, b) => (a.order || 0) - (b.order || 0));
 
           setItems(publishedItems);
@@ -38,36 +56,28 @@ export default function Hero() {
   }, []);
 
   // =========================
-  // 🔹 Carousel automático
+  // 🔹 Carrusel automático
   // =========================
   useEffect(() => {
     if (!items.length) return;
 
     let timeout;
     const item = items[current];
-    const mediaUrl = getImageUrl(item);
-    const isVideo =
-      mediaUrl?.includes(".mp4") || item.media_type?.includes("video");
+    const video = isVideo(item);
 
-    const setNextSlide = () =>
-      setCurrent(prev => (prev + 1) % items.length);
+    const setNextSlide = () => setCurrent((prev) => (prev + 1) % items.length);
 
-    if (isVideo) {
-      const video = videoRef.current;
-      if (video) {
-        const onLoadedMetadata = () => {
-          timeout = setTimeout(setNextSlide, video.duration * 1000);
-        };
-        video.addEventListener("loadedmetadata", onLoadedMetadata, {
-          once: true
-        });
-        return () => {
-          clearTimeout(timeout);
-          video.removeEventListener("loadedmetadata", onLoadedMetadata);
-        };
-      }
+    if (video && videoRef.current) {
+      const onLoadedMetadata = () => {
+        timeout = setTimeout(setNextSlide, videoRef.current.duration * 1000);
+      };
+      videoRef.current.addEventListener("loadedmetadata", onLoadedMetadata, { once: true });
+      return () => {
+        clearTimeout(timeout);
+        videoRef.current.removeEventListener("loadedmetadata", onLoadedMetadata);
+      };
     } else {
-      timeout = setTimeout(setNextSlide, 10000);
+      timeout = setTimeout(setNextSlide, 10000); // 10 segundos para imágenes
     }
 
     return () => clearTimeout(timeout);
@@ -96,29 +106,35 @@ export default function Hero() {
   // 🔹 Slide actual
   // =========================
   const item = items[current];
-  const mediaUrl = getImageUrl(item);
-  const isVideo =
-    mediaUrl?.includes(".mp4") || item.media_type?.includes("video");
+  const mediaUrl = getMediaUrl(item);
+  const video = isVideo(item);
 
-  const prevSlide = () =>
-    setCurrent(prev => (prev - 1 + items.length) % items.length);
-  const nextSlide = () =>
-    setCurrent(prev => (prev + 1) % items.length);
+  const prevSlide = () => setCurrent((prev) => (prev - 1 + items.length) % items.length);
+  const nextSlide = () => setCurrent((prev) => (prev + 1) % items.length);
 
   return (
     <section className="hero-section">
-      {!isVideo ? (
-        <div
-          className="hero-image image-fluid"
-          style={{
-            backgroundImage: `url(${mediaUrl || principalImg})`
-          }}
-        >
-          <div className="image-overlay"></div>
-          <div className="image-content fade-up">
+      {video ? (
+        <div className="hero-video-layout container">
+          <div className="video-container">
+            <video
+              ref={videoRef}
+              src={mediaUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="video-element"
+              onError={() => console.error("No se pudo reproducir el video:", mediaUrl)}
+            />
+          </div>
+
+          <div className="vertical-divider"></div>
+
+          <div className="video-content">
             <h2 className="hero-title">{item.title}</h2>
             <p className="hero-subtitle">{item.subtitle}</p>
-
+            {item.descripcion && <p className="hero-description">{item.descripcion}</p>}
             {item.link && (
               <a
                 href={item.link}
@@ -132,29 +148,14 @@ export default function Hero() {
           </div>
         </div>
       ) : (
-        <div className="hero-video-layout container">
-          <div className="video-container">
-            <video
-              ref={videoRef}
-              src={mediaUrl}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="video-element"
-            />
-          </div>
-
-          <div className="vertical-divider"></div>
-
-          <div className="video-content">
+        <div
+          className="hero-image image-fluid"
+          style={{ backgroundImage: `url(${mediaUrl || principalImg})` }}
+        >
+          <div className="image-overlay"></div>
+          <div className="image-content fade-up">
             <h2 className="hero-title">{item.title}</h2>
             <p className="hero-subtitle">{item.subtitle}</p>
-
-            {item.descripcion && (
-              <p className="hero-description">{item.descripcion}</p>
-            )}
-
             {item.link && (
               <a
                 href={item.link}

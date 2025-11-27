@@ -434,6 +434,7 @@ export const updateTestimonio = (id, data) => handleRequest(api.put(`/testimonio
 export const deleteTestimonio = (id) => handleRequest(api.delete(`/testimonios/${id}`));
 
 export function getImageUrl(item) {
+  // Tomar imagen principal
   let image = item.image;
 
   // Si existe array de imágenes, tomar la primera
@@ -444,8 +445,8 @@ export function getImageUrl(item) {
   // Si no hay imagen, devolver placeholder
   if (!image) return "/images/default-product.jpg";
 
-  // Si es URL completa (Cloudinary), devolver tal cual
-  if (image.startsWith("https")) return image;
+  // Si es URL completa (Cloudinary u otra externa)
+  if (image.startsWith("https://") || image.startsWith("http://")) return image;
 
   // Si es ruta local en storage, concatenar con backend
   const API = import.meta.env.VITE_API_URL;
@@ -453,15 +454,32 @@ export function getImageUrl(item) {
 }
 
 export function getUserImageUrl(user) {
+  // Placeholder si no hay foto
   if (!user?.photo) return "/images/default-profile.jpg";
 
-  // Si es URL completa (Cloudinary), devolver tal cual
-  if (user.photo.startsWith("https")) return user.photo;
+  // URL completa externa
+  if (user.photo.startsWith("https://") || user.photo.startsWith("http://")) return user.photo;
 
-  // Si es ruta local en storage
+  // Ruta local en storage
   const API = import.meta.env.VITE_API_URL;
   return `${API.replace(/\/$/, "")}/storage/${user.photo.replace(/^\/?/, "")}`;
 }
+export function getMediaUrl(item) {
+  const media = item.media_filename;
+
+  if (!media) return "/images/default-product.jpg";
+
+  if (media.startsWith("https://") || media.startsWith("http://")) return media;
+
+  const API = import.meta.env.VITE_API_URL;
+  return `${API.replace(/\/$/, "")}/storage/${media.replace(/^\/?/, "")}`;
+}
+
+export function isVideo(item) {
+  return item.media_type?.startsWith("video");
+}
+
+
 
 
 
