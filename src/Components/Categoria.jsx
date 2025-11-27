@@ -42,7 +42,7 @@ export default function Categoria() {
                     <div key={cat.id} className="col-6 col-md-3">
                       <div className="card bg-dark text-white border-0">
                         <img
-  src={cat.image_url || "/img/ITEM Home.jpg"}
+  src={cat.image_url || "/images/ITEM Home.jpg"}
   className="card-img"
   alt={cat.name}
 />

@@ -5,8 +5,8 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "../css/Contact.css";
-import logo from "../assets/img/dec10.png";
-import direccionIcon from "../assets/img/direccion.png";
+
+import direccionIcon from "/images/direccion.png";
 
 const BACKEND_WHATSAPP_NUMBER = import.meta.env.VITE_BACKEND_WHATSAPP_NUMBER || "34123456789";
 const BACKEND_EMAIL = import.meta.env.VITE_BACKEND_EMAIL || "tuemail@gmail.com";
@@ -37,12 +37,13 @@ function RecenterOnLoad({ position }) {
 
 // ✅ Ajuste perfecto del marcador
 const markerIcon = new L.Icon({
-  iconUrl: direccionIcon,
+  iconUrl: "/images/direccion.png",
   iconSize: [22, 50],
-  iconAnchor: [-390, -90], // punta inferior exacta
-  popupAnchor: [0, -40],
+  iconAnchor: [11, 50],   // ← valores realistas (centro abajo)
+  popupAnchor: [0, -50],
   className: "neon-marker",
 });
+
 
 const Contact = () => {
   const whatsappMessage = encodeURIComponent("Hola 👋, me gustaría obtener más información sobre Decor@10.");
@@ -111,15 +112,16 @@ const Contact = () => {
             <Popup>
               <div style={{ textAlign: "center" }}>
   <img
-    src={logo}
-    alt="Decor@10"
-    style={{
-      width: "100px",
-      height: "auto",
-      borderRadius: "8px",
-      marginBottom: "5px",
-    }}
-  />
+  src="/images/dec10.png"
+  alt="Decor@10"
+  style={{
+    width: "100px",
+    height: "auto",
+    borderRadius: "8px",
+    marginBottom: "5px",
+  }}
+/>
+
   <br />
   <strong className="fs-3">Decor@10</strong>
   <br />

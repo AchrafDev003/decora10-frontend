@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import NewsletterPromo from './NewsletterPromo';
 import 'animate.css';
-import decorativaImg from '/img/decorativa1.png';
+import decorativaImg from '/images/decorativa1.png';
 
 
 export default function StatsSection() {
