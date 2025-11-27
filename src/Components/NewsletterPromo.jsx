@@ -3,6 +3,7 @@ import '../css/NewsletterModal.css';
 import newsletterImg from '/img/newsletter.jpg';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import * as bootstrap from 'bootstrap'; // FIX AQUI 🔥
 
 const NewsletterModal = () => {
   const [step, setStep] = useState(1); // 1: email, 2: mostrar código
