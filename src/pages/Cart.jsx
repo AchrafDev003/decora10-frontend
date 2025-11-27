@@ -4,7 +4,7 @@ import { useCart } from "../Context/Carrito/CartContext";
 import { Link, useNavigate } from "react-router-dom";
 import 'animate.css';
 import { toast } from "react-hot-toast";
-
+import getImageUrl from "../services/api";
 const Cart = () => {
   const { cartItems, removeCartItem, fetchCart, updateCartItem } = useCart();
   const navigate = useNavigate();
@@ -21,16 +21,7 @@ const Cart = () => {
     navigate("/checkout");
   };
 
-  // Imagen
-  const getImageUrl = (item) => {
-    let image = item.image;
-    if (Array.isArray(item.images) && item.images.length > 0) {
-      image = item.images[0].image_path;
-    }
-    if (!image) return "/images/default-product.jpg";
-    if (image.startsWith("http")) return image;
-    return `http://127.0.0.1:8000/storage/${image.replace(/^\/?/, "")}`;
-  };
+  
 
   // Cambio cantidad
  const handleQuantityChange = (item, value) => {

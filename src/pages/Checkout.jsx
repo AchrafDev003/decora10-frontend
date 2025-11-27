@@ -10,7 +10,7 @@ import { useAuth } from "../Context/AuthContext";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import PaymentForm from "../Components/PaymentForm";
-
+import getImageUrl from "../services/api";
 import "../css/Checkout.css";
 
 // Reemplaza con tu clave pública de Stripe
@@ -179,16 +179,7 @@ const Checkout = () => {
   }, [formData.type, formData.country, userLocation]);
 
   // ------------------- Imagen del producto -------------------
-  const getImageUrl = (item) => {
-    const image =
-      Array.isArray(item.images) && item.images.length > 0
-        ? item.images[0].image_path
-        : item.image;
-    if (!image) return "/images/default-product.jpg";
-    return image.startsWith("http")
-      ? image
-      : `http://127.0.0.1:8000/storage/${image.replace(/^\/?/, "")}`;
-  };
+  
 
   return (
     <div className="checkout-container container my-5">

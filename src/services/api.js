@@ -445,7 +445,7 @@ export function getImageUrl(item) {
   if (!image) return "/images/default-product.jpg";
 
   // Si es URL completa (Cloudinary), devolver tal cual
-  if (image.startsWith("http")) return image;
+  if (image.startsWith("https")) return image;
 
   // Si es ruta local en storage, concatenar con backend
   const API = import.meta.env.VITE_API_URL;
@@ -456,7 +456,7 @@ export function getUserImageUrl(user) {
   if (!user?.photo) return "/images/default-profile.jpg";
 
   // Si es URL completa (Cloudinary), devolver tal cual
-  if (user.photo.startsWith("http")) return user.photo;
+  if (user.photo.startsWith("https")) return user.photo;
 
   // Si es ruta local en storage
   const API = import.meta.env.VITE_API_URL;
