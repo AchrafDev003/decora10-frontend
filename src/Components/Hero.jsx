@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { getHeroItems, getImageUrl } from "../services/api";
-import principalImg from "/img/galeria_04.jpg";
+import principalImg from "/images/galeria_04.jpg";
 import "../css/Hero.css";
 
 export default function Hero() {
