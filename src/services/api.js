@@ -444,23 +444,25 @@ export function getImageUrl(item) {
   // Si no hay imagen, devolver placeholder
   if (!image) return "/images/default-product.jpg";
 
-  // Si es URL completa, devolver tal cual
+  // Si es URL completa (Cloudinary), devolver tal cual
   if (image.startsWith("http")) return image;
 
-  // De lo contrario, concatenar con la URL del backend
+  // Si es ruta local en storage, concatenar con backend
   const API = import.meta.env.VITE_API_URL;
-
-return `${API.replace(/\/$/, "")}/storage/${image.replace(/^\/?/, "")}`;
-
+  return `${API.replace(/\/$/, "")}/storage/${image.replace(/^\/?/, "")}`;
 }
+
 export function getUserImageUrl(user) {
   if (!user?.photo) return "/images/default-profile.jpg";
+
+  // Si es URL completa (Cloudinary), devolver tal cual
   if (user.photo.startsWith("http")) return user.photo;
-  const API = import.meta.env.VITE_API_URL; // viene de .env o Vercel
 
-return `${API.replace(/\/$/, "")}/storage/${user.photo.replace(/^\/?/, "")}`;
-
+  // Si es ruta local en storage
+  const API = import.meta.env.VITE_API_URL;
+  return `${API.replace(/\/$/, "")}/storage/${user.photo.replace(/^\/?/, "")}`;
 }
+
 
 
 
