@@ -12,7 +12,7 @@
     import 'bootstrap/dist/js/bootstrap.bundle.min.js';
     import "../css/colchoneria.css";
     import AuthModal from "../Components/LoginModal";
-    import logoColchon from "../assets/images/colchon10.png";
+    import logoColchon from "/images/colchon10.png";
 
     const MARCA_COLORS = {
     Biolife: "#d32f2f",
@@ -101,7 +101,7 @@
       name: producto.name,
       price: finalPrice,
       promo_price: finalPrice,
-      image: producto.images?.[0]?.image_path ?? "/assets/img/placeholder.jpg",
+      image: producto.images?.[0]?.image_path ?? "/images/placeholder.png",
       measure,
     }, 1);
     toast.success("Añadido al carrito");
@@ -175,7 +175,7 @@
                     }) : (
                       <div className="carousel-item active">
                         <div className="position-relative">
-                          <img src="/assets/img/placeholder.jpg" className="d-block w-100 cp-img" alt={producto.name} />
+                          <img src="/images/placeholder.png" className="d-block w-100 cp-img" alt={producto.name} />
                           <Link to={`/producto/${producto.id}`} className="cp-overlay-link">Ver producto</Link>
                         </div>
                       </div>

@@ -21,7 +21,7 @@ import "../css/shop.css";
 import { useCart } from "../Context/Carrito/CartContext";
 import AuthModal from "../Components/LoginModal";
 
-const PLACEHOLDER_IMG = "/assets/img/placeholder.jpg";
+const PLACEHOLDER_IMG = "/images/placeholder.png";
 
 export default function Shop() {
   const [productos, setProductos] = useState([]);

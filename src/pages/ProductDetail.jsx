@@ -149,7 +149,7 @@ export default function ProductDetail() {
         ? producto.images[0].image_path.startsWith("http")
           ? producto.images[0].image_path
           : `${import.meta.env.VITE_API_URL}/${producto.images[0].image_path}`
-        : "/assets/img/placeholder.jpg";
+        : "/images/placeholder.png";
 
       localCart.push({
         product_id: producto.id,
@@ -227,7 +227,7 @@ export default function ProductDetail() {
                   )}
                 </div>
               ) : (
-                <ImageZoom src={producto.image || "/assets/img/placeholder.jpg"} alt={producto.name} zoom={2.5} size={250} />
+                <ImageZoom src={producto.image || "/images/placeholder.png"} alt={producto.name} zoom={2.5} size={250} />
               )}
             </div>
           </div>
@@ -374,7 +374,7 @@ export default function ProductDetail() {
           ? p.images[0].image_path.startsWith("http")
             ? p.images[0].image_path
             : `${import.meta.env.VITE_API_URL}/${p.images[0].image_path}`
-          : "/assets/img/placeholder.jpg";
+          : "/images/placeholder.png";
 
         return (
           <div
@@ -480,7 +480,7 @@ export default function ProductDetail() {
         ? p.images[0].image_path.startsWith("http")
           ? p.images[0].image_path
           : `${import.meta.env.VITE_API_URL}/${p.images[0].image_path}`
-        : "/assets/img/placeholder.jpg";
+        : "/images/placeholder.png";
 
       return (
         <div
