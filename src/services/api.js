@@ -437,27 +437,14 @@ export const deleteTestimonio = (id) => handleRequest(api.delete(`/testimonios/$
 //  GET PRODUCT IMAGE
 // =======================
 const API = import.meta.env.VITE_API_URL;
-export function getImageUrl(item) {
-  let image = item?.image;
-
-  // Si existe array de imágenes, tomar la primera
-  if (Array.isArray(item?.images) && item.images.length > 0) {
-    image = item.images[0].image_path;
-  }
-
-  // Si no hay imagen, devolver placeholder
+export function getImageUrl(image) {
   if (!image) return "/images/default-product.jpg";
 
-  // Normalizar: si ya es URL completa, devolver tal cual
-  if (image.startsWith("http://") || image.startsWith("https://")) {
-    // Evitar doble 'storage/' en Cloudinary
-    if (image.includes("res.cloudinary.com")) return image;
-    return image;
-  }
+  if (image.startsWith("http://") || image.startsWith("https://")) return image;
 
-  // Imagen local en storage
-  return `${API.replace(/\/$/, "")}/storage/${image.replace(/^\/?/, "")}`;
+  return `${import.meta.env.VITE_API_URL.replace(/\/$/, "")}/storage/${image.replace(/^\/?/, "")}`;
 }
+
  
 
 

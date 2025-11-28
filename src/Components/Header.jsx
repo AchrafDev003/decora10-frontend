@@ -48,14 +48,24 @@ export default function Header() {
   }, []);
 
   // Cerrar dropdowns al hacer click fuera
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (catRef.current && !catRef.current.contains(e.target)) setCatOpen(false);
-      if (accountRef.current && !accountRef.current.contains(e.target)) setAccountOpen(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  // Cerrar dropdowns al hacer click fuera de manera segura
+useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (catRef.current && !catRef.current.contains(e.target)) setCatOpen(false);
+    if (accountRef.current && !accountRef.current.contains(e.target)) setAccountOpen(false);
+  };
+
+  // Agregar listener
+  document.addEventListener("mousedown", handleClickOutside);
+
+  // Cleanup seguro
+  return () => {
+    if (document?.removeEventListener) {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+  };
+}, []);
+
 
   const handleSearch = (e) => {
     e.preventDefault();

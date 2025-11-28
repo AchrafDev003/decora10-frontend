@@ -232,7 +232,8 @@ export default function Main() {
                   <div className="carousel-inner">
                     {producto.images?.length > 0 ? (
                       producto.images.map((img, idxImg) => {
-                        const url = getImageUrl({ image: img?.image_path });
+                        const url = getImageUrl(img?.image_path);
+
                         return (
                           <div
                             className={`carousel-item ${

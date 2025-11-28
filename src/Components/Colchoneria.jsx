@@ -156,11 +156,18 @@ export default function Colchoneria() {
                         </div>
                         <div className="carousel-inner">
                           {producto.images?.length > 0 ? producto.images.map((img, idxImg) => {
-                            const url = img.image_path.startsWith("http") ? img.image_path : `${import.meta.env.VITE_API_URL}/${img.image_path}`;
+                            const url = getImageUrl(img.image_path);
+
                             return (
                               <div className={`carousel-item ${idxImg === 0 ? "active" : ""}`} key={idxImg}>
                                 <div className="position-relative">
-                                  <img src={url} className="d-block w-100 colchoneria-img" alt={producto.name} />
+                                  <img
+  src={url}
+  className="d-block w-100 colchoneria-img"
+  alt={producto.name}
+  onError={(e) => e.target.src = "/images/ITEM Home.jpg"}
+/>
+
                                   <Link to={`/producto/${producto.id}`} className="overlay-hover-link">Ver producto</Link>
                                 </div>
                               </div>
