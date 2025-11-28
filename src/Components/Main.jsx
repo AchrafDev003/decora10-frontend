@@ -72,8 +72,9 @@ export default function Main() {
 
           productosTemp.push(...restantes.slice(0, 16 - productosTemp.length));
         }
-
+  
         setProductos(productosTemp.slice(0, 16));
+        console.log("Productos destacados cargados:", productosTemp);
       } catch (err) {
         console.error("Error cargando productos:", err);
       }
