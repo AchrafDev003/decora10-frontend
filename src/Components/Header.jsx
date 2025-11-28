@@ -55,16 +55,13 @@ useEffect(() => {
     if (accountRef.current && !accountRef.current.contains(e.target)) setAccountOpen(false);
   };
 
-  // Agregar listener
   document.addEventListener("mousedown", handleClickOutside);
 
-  // Cleanup seguro
   return () => {
-    if (document?.removeEventListener) {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
+    document.removeEventListener("mousedown", handleClickOutside);
   };
 }, []);
+
 
 
   const handleSearch = (e) => {

@@ -437,13 +437,20 @@ export const deleteTestimonio = (id) => handleRequest(api.delete(`/testimonios/$
 //  GET PRODUCT IMAGE
 // =======================
 const API = import.meta.env.VITE_API_URL;
-export function getImageUrl(image) {
+
+export function getImageUrl(item) {
+  // Si item es un string
+  let image = typeof item === "string" ? item : item?.image || item?.image_path;
+
   if (!image) return "/images/default-product.jpg";
 
+  // Si ya es URL completa
   if (image.startsWith("http://") || image.startsWith("https://")) return image;
 
-  return `${import.meta.env.VITE_API_URL.replace(/\/$/, "")}/storage/${image.replace(/^\/?/, "")}`;
+  // Sino, construir ruta usando tu API
+  return `${API.replace(/\/$/, "")}/storage/${image.replace(/^\/?/, "")}`;
 }
+
 
  
 
