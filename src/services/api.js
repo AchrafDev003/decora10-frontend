@@ -438,7 +438,6 @@ export const deleteTestimonio = (id) => handleRequest(api.delete(`/testimonios/$
 // =======================
 const API = import.meta.env.VITE_API_URL;
 export function getImageUrl(item) {
-  // Tomar imagen principal
   let image = item?.image;
 
   // Si existe array de imágenes, tomar la primera
@@ -449,12 +448,17 @@ export function getImageUrl(item) {
   // Si no hay imagen, devolver placeholder
   if (!image) return "/images/default-product.jpg";
 
-  // Si es URL completa (Cloudinary u otra externa)
-  if (image.startsWith("https://") || image.startsWith("http://")) return image;
+  // Normalizar: si ya es URL completa, devolver tal cual
+  if (image.startsWith("http://") || image.startsWith("https://")) {
+    // Evitar doble 'storage/' en Cloudinary
+    if (image.includes("res.cloudinary.com")) return image;
+    return image;
+  }
 
-  // Imagen local
+  // Imagen local en storage
   return `${API.replace(/\/$/, "")}/storage/${image.replace(/^\/?/, "")}`;
 }
+ 
 
 
 // =======================
@@ -463,8 +467,12 @@ export function getImageUrl(item) {
 export function getUserImageUrl(user) {
   if (!user?.photo) return "/images/default-profile.jpg";
 
-  if (user.photo.startsWith("https://") || user.photo.startsWith("http://"))
-    return user.photo;
+  // Normalizar: si ya es URL completa, devolver tal cual
+  if (image.startsWith("http://") || image.startsWith("https://")) {
+    // Evitar doble 'storage/' en Cloudinary
+    if (image.includes("res.cloudinary.com")) return image;
+    return image;
+  }
 
   return `${API.replace(/\/$/, "")}/storage/${user.photo.replace(/^\/?/, "")}`;
 }
@@ -478,7 +486,12 @@ export function getMediaUrl(item) {
 
   if (!media) return "/images/default-product.jpg";
 
-  if (media.startsWith("https://") || media.startsWith("http://")) return media;
+  // Normalizar: si ya es URL completa, devolver tal cual
+  if (image.startsWith("http://") || image.startsWith("https://")) {
+    // Evitar doble 'storage/' en Cloudinary
+    if (image.includes("res.cloudinary.com")) return image;
+    return image;
+  }
 
   return `${API.replace(/\/$/, "")}/storage/${media.replace(/^\/?/, "")}`;
 }
