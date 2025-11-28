@@ -68,15 +68,18 @@ export default function Hero() {
     const setNextSlide = () => setCurrent((prev) => (prev + 1) % items.length);
 
     if (video && videoRef.current) {
-      const onLoadedMetadata = () => {
-        timeout = setTimeout(setNextSlide, videoRef.current.duration * 1000);
-      };
-      videoRef.current.addEventListener("loadedmetadata", onLoadedMetadata, { once: true });
-      return () => {
-        clearTimeout(timeout);
-        videoRef.current.removeEventListener("loadedmetadata", onLoadedMetadata);
-      };
-    } else {
+  const currentVideo = videoRef.current; // ← captura el ref actual
+  const onLoadedMetadata = () => {
+    timeout = setTimeout(setNextSlide, currentVideo.duration * 1000);
+  };
+  currentVideo.addEventListener("loadedmetadata", onLoadedMetadata, { once: true });
+
+  return () => {
+    clearTimeout(timeout);
+    if (currentVideo) currentVideo.removeEventListener("loadedmetadata", onLoadedMetadata);
+  };
+}
+else {
       timeout = setTimeout(setNextSlide, 10000); // 10 segundos para imágenes
     }
 

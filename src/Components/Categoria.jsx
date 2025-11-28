@@ -50,11 +50,12 @@ export default function Categoria() {
                   {slideCats.map((cat) => (
                     <div key={cat.id} className="col-6 col-md-3">
                       <div className="card bg-dark text-white border-0">
-                        <img
-  src={getImageUrl(cat.image_url) || "/images/ITEM Home.jpg"}
+                       <img
+  src={getImageUrl({ image: cat.image_url })} // PASAR como objeto
   className="card-img"
   alt={cat.name}
 />
+
 
                         <div className="card-img-overlay d-flex align-items-end justify-content-center bg-dark bg-opacity-50">
                           <button
