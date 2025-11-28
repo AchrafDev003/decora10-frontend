@@ -465,7 +465,7 @@ export function getImageUrl(item) {
 //  GET USER PROFILE IMAGE
 // =======================
 export function getUserImageUrl(user) {
-  let image = item?.image;
+  let image = user?.photo;
   if (!user?.photo) return "/images/default-profile.jpg";
 
   // Normalizar: si ya es URL completa, devolver tal cual

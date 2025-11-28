@@ -86,6 +86,7 @@ export default function Testimonios() {
   const fetchTestimonios = async () => {
     try {
       const res = await getTestimonios();
+      console.log("Testimonios API response:", res);
       let data = [];
       if (res.success && Array.isArray(res.data.data)) {
         data = res.data.data.map((t) => ({
