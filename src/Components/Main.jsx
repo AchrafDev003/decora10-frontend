@@ -232,53 +232,51 @@ export default function Main() {
                 >
                   <div className="carousel-inner">
                     {producto.images?.length > 0 ? (
-                      producto.images.map((img, idxImg) => {
-                        const url = getImageUrl(img);
+  producto.images.map((img, idxImg) => {
+    const url = getImageUrl(img);
 
-                        return (
-                          <div
-                            className={`carousel-item ${
-                              idxImg === 0 ? "active" : ""
-                            }`}
-                            key={idxImg}
-                          >
-                            <div className="position-relative">
-                              <img
-                                src={url}
-                                onError={(e) =>
-                                  (e.target.src = "/images/default-product.jpg")
-                                }
-                                className="d-block w-100"
-                                alt={producto.name}
-                                style={{
-                                  height: "300px",
-                                  objectFit: "cover",
-                                  objectPosition: "center 90%",
-                                }}
-                              />
-                              <Link
-                                to={`/producto/${producto.id}`}
-                                className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center text-white text-decoration-none overlay-hover"
-                              >
-                                Ver producto
-                              </Link>
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="carousel-item active">
-                        <img
-                          src="/images/default-product.jpg"
-                          className="d-block w-100"
-                          alt={producto.name}
-                          style={{
-                            height: "300px",
-                            objectFit: "cover",
-                          }}
-                        />
-                      </div>
-                    )}
+    return (
+      <div
+        className={`carousel-item ${idxImg === 0 ? "active" : ""}`}
+        key={idxImg}
+      >
+        <div className="position-relative">
+          <img
+            src={url}
+            onError={(e) => (e.target.src = "/images/default-product.jpg")}
+            className="d-block w-100"
+            alt={producto.name}
+            style={{
+              height: "300px",
+              objectFit: "cover",
+              objectPosition: "center 90%",
+            }}
+          />
+
+          <Link
+            to={`/producto/${producto.id}`}
+            className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center text-white text-decoration-none overlay-hover"
+          >
+            Ver producto
+          </Link>
+        </div>
+      </div>
+    );
+  })
+) : (
+  <div className="carousel-item active">
+    <img
+      src="/images/default-product.jpg"
+      className="d-block w-100"
+      alt={producto.name}
+      style={{
+        height: "300px",
+        objectFit: "cover",
+      }}
+    />
+  </div>
+)}
+
                   </div>
 
                   {/* Controles solo si más de 1 imagen */}

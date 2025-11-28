@@ -438,18 +438,32 @@ export const deleteTestimonio = (id) => handleRequest(api.delete(`/testimonios/$
 // =======================
 const API = import.meta.env.VITE_API_URL;
 
-export function getImageUrl(item) {
-  // Si item es un string
-  let image = typeof item === "string" ? item : item?.image || item?.image_path;
-
+export function getImageUrl(image) {
   if (!image) return "/images/default-product.jpg";
 
-  // Si ya es URL completa
-  if (image.startsWith("http://") || image.startsWith("https://")) return image;
+  let url = image;
 
-  // Sino, construir ruta usando tu API
-  return `${API.replace(/\/$/, "")}/storage/${image.replace(/^\/?/, "")}`;
+  // Si viene como objeto (images[x])
+  if (typeof image === "object") {
+    url = image.image_path;
+  }
+
+  if (!url) return "/images/default-product.jpg";
+
+  // Si viene con doble URL, extraer solo la parte Cloudinary
+  if (url.includes("https://res.cloudinary.com")) {
+    const cloudUrl = url.split("https://res.cloudinary.com")[1];
+    return "https://res.cloudinary.com" + cloudUrl;
+  }
+
+  // Si ya es URL válida
+  if (url.startsWith("http")) return url;
+
+  // Fallback
+  return "/images/default-product.jpg";
 }
+
+
 
 
  
