@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import {
@@ -21,10 +21,8 @@ import AuthModal from "./LoginModal";
 import { useAuth } from "../Context/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "../css/Testimonios.css"; // Para estilos personalizados
-import { useRef } from "react"; // ✅ IMPORTAR useRef
-
-
+import "../css/Testimonios.css";
+import { getUserImageUrl } from "../helpers/images"; // ✅ helper centralizado
 
 // Fallback local
 const testimoniosLocales = [
@@ -60,7 +58,7 @@ function PaperComponent(props) {
     <Draggable
       handle="#draggable-dialog-title"
       cancel={'[class*="MuiDialogContent-root"]'}
-      nodeRef={paperRef} // 🟢 importante
+      nodeRef={paperRef}
     >
       <Paper ref={paperRef} {...props} />
     </Draggable>
@@ -93,11 +91,7 @@ export default function Testimonios() {
         data = res.data.data.map((t) => ({
           nombre: t.user?.name || "Usuario",
           texto: t.texto,
-          imagen: t.imagen
-            ? `http://127.0.0.1:8000/storage/${t.imagen}`
-            : t.user?.photo
-            ? `http://127.0.0.1:8000/storage/${t.user.photo}`
-            : "https://via.placeholder.com/80",
+          imagen: getUserImageUrl(t.user), // ✅ Usamos helper
           detalle: t.texto,
           rating: t.rating,
           titulo: t.titulo,
@@ -161,11 +155,7 @@ export default function Testimonios() {
         detalle: t.texto,
         titulo: t.titulo,
         rating: t.rating,
-        imagen: t.imagen
-          ? `http://127.0.0.1:8000/storage/${t.imagen}`
-          : t.user?.photo
-          ? `http://127.0.0.1:8000/storage/${t.user.photo}`
-          : "https://via.placeholder.com/80",
+        imagen: getUserImageUrl(t.user || { photo: t.imagen }), // ✅ helper
       };
       setTestimonios((prev) => [nuevo, ...prev]);
       setShowForm(false);
@@ -202,7 +192,7 @@ export default function Testimonios() {
         </MuiButton>
 
         {/* CAROUSEL */}
-        <div id="carouselTestimonios" className="carousel slide " data-bs-ride="carousel" data-bs-interval="4000">
+        <div id="carouselTestimonios" className="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
           <div className="carousel-inner">
             {slides.map((group, idx) => (
               <div key={idx} className={`carousel-item ${idx === 0 ? "active" : ""}`}>
@@ -210,7 +200,7 @@ export default function Testimonios() {
                   {group.map((t, i) => (
                     <div key={i} className="col-12 col-md-4 mb-3">
                       <div className="card shadow-lg border-0 h-100 p-3 d-flex flex-column align-items-center testimonio-card">
-  <Avatar src={t.imagen} alt={t.nombre} sx={{ width: 80, height: 80, mb: 2 }} />
+                        <Avatar src={t.imagen} alt={t.nombre} sx={{ width: 80, height: 80, mb: 2 }} />
                         <h5 className="fw-bold">{t.titulo}</h5>
                         <p className="fst-italic text-center">"{t.texto}"</p>
                         <Rating value={t.rating} readOnly precision={0.5} />
@@ -236,7 +226,6 @@ export default function Testimonios() {
               <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
             </svg>
           </button>
-
           <button className="carousel-control-next" type="button" data-bs-target="#carouselTestimonios" data-bs-slide="next">
             <svg width="30" height="30" viewBox="0 0 16 16" fill="#ff6600">
               <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>

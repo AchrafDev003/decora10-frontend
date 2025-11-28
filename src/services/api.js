@@ -433,12 +433,16 @@ export const createTestimonio = (data) =>
 export const updateTestimonio = (id, data) => handleRequest(api.put(`/testimonios/${id}`, data));
 export const deleteTestimonio = (id) => handleRequest(api.delete(`/testimonios/${id}`));
 
+// =======================
+//  GET PRODUCT IMAGE
+// =======================
+const API = import.meta.env.VITE_API_URL;
 export function getImageUrl(item) {
   // Tomar imagen principal
-  let image = item.image;
+  let image = item?.image;
 
   // Si existe array de imágenes, tomar la primera
-  if (Array.isArray(item.images) && item.images.length > 0) {
+  if (Array.isArray(item?.images) && item.images.length > 0) {
     image = item.images[0].image_path;
   }
 
@@ -448,38 +452,44 @@ export function getImageUrl(item) {
   // Si es URL completa (Cloudinary u otra externa)
   if (image.startsWith("https://") || image.startsWith("http://")) return image;
 
-  // Si es ruta local en storage, concatenar con backend
-  const API = import.meta.env.VITE_API_URL;
+  // Imagen local
   return `${API.replace(/\/$/, "")}/storage/${image.replace(/^\/?/, "")}`;
 }
 
+
+// =======================
+//  GET USER PROFILE IMAGE
+// =======================
 export function getUserImageUrl(user) {
-  // Placeholder si no hay foto
   if (!user?.photo) return "/images/default-profile.jpg";
 
-  // URL completa externa
-  if (user.photo.startsWith("https://") || user.photo.startsWith("http://")) return user.photo;
+  if (user.photo.startsWith("https://") || user.photo.startsWith("http://"))
+    return user.photo;
 
-  // Ruta local en storage
-  const API = import.meta.env.VITE_API_URL;
   return `${API.replace(/\/$/, "")}/storage/${user.photo.replace(/^\/?/, "")}`;
 }
+
+
+// =======================
+//  GET MEDIA FILE (video | audio | image)
+// =======================
 export function getMediaUrl(item) {
-  const media = item.media_filename;
+  const media = item?.media_filename;
 
   if (!media) return "/images/default-product.jpg";
 
   if (media.startsWith("https://") || media.startsWith("http://")) return media;
 
-  const API = import.meta.env.VITE_API_URL;
   return `${API.replace(/\/$/, "")}/storage/${media.replace(/^\/?/, "")}`;
 }
 
+
+// =======================
+//  IS VIDEO?
+// =======================
 export function isVideo(item) {
-  return item.media_type?.startsWith("video");
+  return item?.media_type?.startsWith("video");
 }
-
-
 
 
 
