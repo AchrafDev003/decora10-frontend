@@ -465,6 +465,7 @@ export function getImageUrl(item) {
 //  GET USER PROFILE IMAGE
 // =======================
 export function getUserImageUrl(user) {
+  let image = item?.image;
   if (!user?.photo) return "/images/default-profile.jpg";
 
   // Normalizar: si ya es URL completa, devolver tal cual
@@ -486,12 +487,7 @@ export function getMediaUrl(item) {
 
   if (!media) return "/images/default-product.jpg";
 
-  // Normalizar: si ya es URL completa, devolver tal cual
-  if (image.startsWith("http://") || image.startsWith("https://")) {
-    // Evitar doble 'storage/' en Cloudinary
-    if (image.includes("res.cloudinary.com")) return image;
-    return image;
-  }
+  if (media.startsWith("https://") || media.startsWith("http://")) return media;
 
   return `${API.replace(/\/$/, "")}/storage/${media.replace(/^\/?/, "")}`;
 }
