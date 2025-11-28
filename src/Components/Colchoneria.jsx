@@ -9,7 +9,7 @@ import {
   getColchoneriaHighlights,
   getFavorites,
   addFavorite,
-  removeFavorite,
+  removeFavorite,getImageUrl,
 } from "../services/api";
 import { toast } from "react-hot-toast";
 import "bootstrap/dist/css/bootstrap.min.css";
