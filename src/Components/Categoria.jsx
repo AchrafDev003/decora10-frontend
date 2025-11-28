@@ -11,6 +11,7 @@ export default function Categoria() {
       try {
         const res = await getCategories();
         if (res.success) setCategories(res.data);
+        console.log(res.data);
       } catch (err) {
         console.error("Error cargando categorías:", err);
       }
@@ -50,14 +51,16 @@ export default function Categoria() {
                   {slideCats.map((cat) => (
                     <div key={cat.id} className="col-6 col-md-3">
                       <div className="card bg-dark text-white border-0">
-                       <img
-  src={getImageUrl({ image: cat.image_url })} // PASAR como objeto
-  className="card-img"
-  alt={cat.name}
-/>
+                        <img
+                          src={getImageUrl({ image_path: cat.image_url })} // Pasamos un objeto con image_path
+                          className="card-img"
+                          alt={cat.name}
+                          onError={(e) =>
+                            (e.target.src = "/images/default-category.jpg")
+                          }
+                        />
 
-
-                        <div className="card-img-overlay d-flex align-items-end justify-content-center bg-dark bg-opacity-50">
+                        <div className="card-img-overlay d-flex align-items-end justify-content-center bg-dark bg-opacity-10">
                           <button
                             onClick={() => handleCategoryClick(cat.id)}
                             className="category fs-2 text-decoration-none text-center d-block py-3 btn btn-link text-white"

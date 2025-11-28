@@ -9,7 +9,8 @@ import {
   addFavorite,
   removeFavorite,
   getProductsFiltrados,
-  getRelatedByFirstWord
+  getRelatedByFirstWord,
+  getImageUrl,
 } from "../services/api";
 import { useCart } from "../Context/Carrito/CartContext";
 import { toast, ToastContainer } from "react-toastify";
@@ -17,6 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ImageZoom from "../Components/ImageMagnifier";
 import LoginModal from "../Components/LoginModal";
 import "../css/ProductDetail.css";
+import { get } from "react-hook-form";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -204,9 +206,7 @@ export default function ProductDetail() {
                 <div id={`carousel-product-${producto.id}`} className="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
                   <div className="carousel-inner">
                     {producto.images.map((img, idx) => {
-                      const url = img.image_path?.startsWith("http")
-                        ? img.image_path
-                        : `${import.meta.env.VITE_API_URL}/${img.image_path}`;
+                      const url = getImageUrl(img.image_path) || "/images/placeholder.png";
                       return (
                         <div key={idx} className={`carousel-item ${idx === 0 ? "active" : ""}`}>
                           <ImageZoom src={url} alt={producto.name} zoom={2.5} size={250} />
@@ -217,12 +217,48 @@ export default function ProductDetail() {
 
                   {producto.images.length > 1 && (
                     <>
-                      <button className="carousel-control-prev" type="button" data-bs-target={`#carousel-product-${producto.id}`} data-bs-slide="prev">
-                        <span className="carousel-control-prev-icon" aria-hidden="true" style={{ filter: "invert(0%)" }}></span>
-                      </button>
-                      <button className="carousel-control-next" type="button" data-bs-target={`#carousel-product-${producto.id}`} data-bs-slide="next">
-                        <span className="carousel-control-next-icon" aria-hidden="true" style={{ filter: "invert(0%)" }}></span>
-                      </button>
+                       {/* Botones prev/next */}
+  <button
+    className="carousel-control-prev"
+    type="button"
+    data-bs-target={`#carousel-product-${producto.id}`}
+    data-bs-slide="prev"
+  >
+    <span
+      className="carousel-control-prev-icon"
+      aria-hidden="true"
+      style={{
+        filter: "invert(0%)", // negro
+        width: "40px",
+        height: "40px",
+        borderRadius: "75%",
+        backgroundColor: "Orange",
+        padding: "5px",
+      }}
+    ></span>
+    <span className="visually-hidden">Previous</span>
+  </button>
+
+  <button
+    className="carousel-control-next"
+    type="button"
+    data-bs-target={`#carousel-product-${producto.id}`}
+    data-bs-slide="next"
+  >
+    <span
+      className="carousel-control-next-icon"
+      aria-hidden="true"
+      style={{
+        filter: "invert(0%)",
+        width: "40px",
+        height: "40px",
+        borderRadius: "50%",
+        backgroundColor: "Orange",
+        padding: "10px",
+      }}
+    ></span>
+    <span className="visually-hidden">Next</span>
+  </button>
                     </>
                   )}
                 </div>
@@ -370,11 +406,10 @@ export default function ProductDetail() {
       }}
     >
       {relatedProductsByWord.map((p) => {
-        const firstImage = p.images?.[0]?.image_path
-          ? p.images[0].image_path.startsWith("http")
-            ? p.images[0].image_path
-            : `${import.meta.env.VITE_API_URL}/${p.images[0].image_path}`
-          : "/images/placeholder.png";
+        const firstImage = p.images?.[0]
+  ? getImageUrl(p.images[0])
+  : "/images/placeholder.png";
+
 
         return (
           <div
@@ -476,11 +511,10 @@ export default function ProductDetail() {
     }}
   >
     {relatedProducts.map((p) => {
-      const firstImage = p.images?.[0]?.image_path
-        ? p.images[0].image_path.startsWith("http")
-          ? p.images[0].image_path
-          : `${import.meta.env.VITE_API_URL}/${p.images[0].image_path}`
-        : "/images/placeholder.png";
+      const firstImage = p.images?.[0]
+  ? getImageUrl(p.images[0])
+  : "/images/placeholder.png";
+
 
       return (
         <div

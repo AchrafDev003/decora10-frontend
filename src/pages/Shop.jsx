@@ -11,6 +11,7 @@ import {
   getFeaturedProductsByCategory2,
   getColchoneriaHighlights2,
   getProductsFiltrados,
+  getImageUrl
 } from "../services/api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as bootstrap from "bootstrap";
@@ -251,9 +252,9 @@ export default function Shop() {
 }}
 
             style={{ cursor: "pointer" }}
-          >
+          >   
             <img
-              src={cat.image_url || PLACEHOLDER_IMG}
+              src={getImageUrl(cat.image_url) || PLACEHOLDER_IMG}
               alt={cat.name}
               className="category-img"
               onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
@@ -340,7 +341,7 @@ export default function Shop() {
                       {producto.images.map((img, idx) => (
                         <div key={img.id} className={`carousel-item ${idx === 0 ? "active" : ""}`}>
                           <img
-                            src={img.image_path || PLACEHOLDER_IMG}
+                            src={getImageUrl(img.image_path) || PLACEHOLDER_IMG}
                             className="d-block w-100 "
                             alt={producto.name}
                             onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
