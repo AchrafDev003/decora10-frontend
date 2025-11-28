@@ -11,7 +11,7 @@ export default function CookieConsentBanner() {
       guiOptions: {
         consentModal: {
           layout: "box",
-          position: "bottom right",
+          position: "bottom center", // Más centrado para móviles
           equalWeightButtons: true,
           flipButtons: false,
         },
@@ -72,10 +72,9 @@ export default function CookieConsentBanner() {
     });
   }, []);
 
- const handleResetConsent = () => {
-  CookieConsent.reset(true);
-};
-
+  const handleResetConsent = () => {
+    CookieConsent.reset(true);
+  };
 
   return (
     <>
@@ -91,6 +90,7 @@ export default function CookieConsentBanner() {
             color: "white",
             padding: "8px 16px",
             borderRadius: "8px",
+            fontSize: "0.9rem",
           }}
         >
           Resetear Cookies

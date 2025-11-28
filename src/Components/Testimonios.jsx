@@ -22,7 +22,7 @@ import { useAuth } from "../Context/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "../css/Testimonios.css";
-import { getUserImageUrl } from "../helpers/images"; // ✅ helper centralizado
+import { getUserImageUrl } from "../services/api"; // ✅ helper centralizado
 
 // Fallback local
 const testimoniosLocales = [
