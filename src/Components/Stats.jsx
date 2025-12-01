@@ -101,33 +101,41 @@ export default function StatsSection() {
 
         /* Imagen flotante */
        /* Imagen flotante */
+/* Desktop (tu diseño actual, corregido un poco) */
 .floating-image {
   position: absolute;
-  bottom: -130px; /* mitad fuera de esta sección */
+  bottom: -130px;
   left: 200px;
-  width: auto;
+  max-width: 100% !important;
   height: 30rem;
-  padding-top: 150px;
   object-fit: contain;
-  margin-top: 60px;
   opacity: 2;
   z-index: 10;
   animation: float 6s ease-in-out infinite;
   pointer-events: none;
 }
 
-/* Reflejo */
-
-
-/* Animación de reflejo tipo agua */
-@keyframes ripple {
-  0%, 100% {
-    transform: scaleY(-1) translateY(0);
+/* ✔ RESPONSIVE: sigue entre secciones pero sin scroll */
+@media (max-width: 768px) {
+  .floating-image {
+    position: absolute !important;
+    bottom: -80px !important;   /* sigue entre secciones */
+    left: 50% !important;       /* centramos */
+    transform: translateX(-50%) !important; /* centra bien */
+    
+    width: 70% !important;      /* tamaño perfecto en móvil */
+    height: auto !important;
+    
+    padding: 0 !important;      /* elimina padding que rompía */
+    margin: 0 !important;
   }
-  50% {
-    transform: scaleY(-1) translateY(5px);
+
+  #stats-section {
+    overflow-x: hidden !important;
   }
 }
+
+  
 
       `}</style>
     </section>

@@ -351,7 +351,7 @@ const Checkout = () => {
               >
                 <div className="d-flex align-items-center gap-3">
                   <img
-                    src={getImageUrl(item)}
+                    src={item.images?.[0]?.image_path ?? "/images/ITEM Home.jpg"}
                     alt={item.name}
                     className="rounded shadow-sm"
                     style={{ width: 80, height: 80, objectFit: "cover" }}

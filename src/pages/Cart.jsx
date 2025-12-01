@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import 'animate.css';
 import { toast } from "react-hot-toast";
 import getImageUrl from "../services/api";
+
 const Cart = () => {
   const { cartItems, removeCartItem, fetchCart, updateCartItem } = useCart();
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Cart = () => {
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
+  console.log("Cart Items:", cartItems);
 
   const handleCheckout = () => {
     if (!cartItems || cartItems.length === 0) {
@@ -21,19 +23,14 @@ const Cart = () => {
     navigate("/checkout");
   };
 
-  
-
   // Cambio cantidad
- const handleQuantityChange = (item, value) => {
-  let quantity = parseInt(value);
-  if (isNaN(quantity) || quantity < 1) quantity = 1;
-  if (quantity > 5) quantity = 5;
+  const handleQuantityChange = (item, value) => {
+    let quantity = parseInt(value);
+    if (isNaN(quantity) || quantity < 1) quantity = 1;
+    if (quantity > 5) quantity = 5;
 
-  // Llamar al método correcto para actualizar cantidad
-  updateCartItem(item.product_id ?? item.id, quantity);
-};
-
-
+    updateCartItem(item.product_id ?? item.id, quantity);
+  };
 
   // Calcular total (conversión segura a número)
   const total = (cartItems || []).reduce((sum, item) => {
@@ -79,53 +76,52 @@ const Cart = () => {
                 {cartItems.map((item) => {
                   const price = parseFloat(item.promo_price ?? item.price ?? 0) || 0;
                   const quantity = parseInt(item.quantity ?? 1) || 1;
+
+                  
+
                   return (
                     <tr key={item.product_id ?? item.id} className="align-middle">
                       <td className="d-flex align-items-center gap-3">
                         <img
-                          src={getImageUrl(item)}
-                          alt={item.name}
-                          className="rounded shadow-sm"
-                          style={{
-                            width: "80px",
-                            height: "80px",
-                            objectFit: "cover",
-                          }}
-                        />
+  src={item.images?.[0]?.image_path ?? "/images/ITEM Home.jpg"}
+  alt={item.name}
+  className="rounded shadow-sm"
+  style={{
+    width: "80px",
+    height: "80px",
+    objectFit: "cover",
+  }}
+/>
+
                         <span className="fw-semibold">{item.name}</span>
                       </td>
                       <td>€{price.toFixed(2)}</td>
                       <td>
                         <input
-  type="number"
-  min="1"
-  max="5"
-  value={quantity}
-  onInput={(e) => {
-    let newValue = parseInt(e.target.value, 10);
-
-    if (isNaN(newValue)) return;
-
-    if (newValue < 1) {
-      toast.error("No puedes tener menos de 1 unidad");
-      newValue = 1;
-    } else if (newValue > 5) {
-      toast.error("Máximo 5 unidades por producto");
-      newValue = 5;
-    }
-
-    handleQuantityChange(item, newValue);
-  }}
-  className="form-control text-center"
-  style={{
-    width: "70px",
-    borderRadius: "8px",
-    border: "2px solid #ff7e5f",
-    fontWeight: "bold",
-  }}
-/>
-
-
+                          type="number"
+                          min="1"
+                          max="5"
+                          value={quantity}
+                          onInput={(e) => {
+                            let newValue = parseInt(e.target.value, 10);
+                            if (isNaN(newValue)) return;
+                            if (newValue < 1) {
+                              toast.error("No puedes tener menos de 1 unidad");
+                              newValue = 1;
+                            } else if (newValue > 5) {
+                              toast.error("Máximo 5 unidades por producto");
+                              newValue = 5;
+                            }
+                            handleQuantityChange(item, newValue);
+                          }}
+                          className="form-control text-center"
+                          style={{
+                            width: "70px",
+                            borderRadius: "8px",
+                            border: "2px solid #ff7e5f",
+                            fontWeight: "bold",
+                          }}
+                        />
                       </td>
                       <td>€{(price * quantity).toFixed(2)}</td>
                       <td>
@@ -144,14 +140,14 @@ const Cart = () => {
           </div>
 
           <div
-            className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 p-4 shadow-lg rounded bg-gradient"
+            className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 p-4 shadow-lg rounded"
             style={{ background: "linear-gradient(90deg, #43cea2, #185a9d)" }}
           >
             <Link to="/tienda" className="btn btn-light px-4 py-2 fw-bold shadow">
               Seguir Comprando
             </Link>
             <div className="d-flex flex-column flex-md-row align-items-center gap-3">
-              <h4 className="mb-0 text-success fw-bold fs-4">
+              <h4 className="mb-0 text-white fw-bold fs-4">
                 Total: €{total.toFixed(2)}
               </h4>
               <button

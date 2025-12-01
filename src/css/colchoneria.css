@@ -104,7 +104,7 @@
   flex: 2 1 50%;
   height: 220px;
   
-  object-fit: cover;
+  object-fit: cover;    /* Recorta la imagen si es necesario para cubrir el área */
 }
 
 /* Overlay hover */

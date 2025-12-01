@@ -1,4 +1,3 @@
-// src/pages/Contact.jsx
 import React, { useEffect } from "react";
 import { FaWhatsapp, FaEnvelope } from "react-icons/fa";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
@@ -7,63 +6,51 @@ import "leaflet/dist/leaflet.css";
 import "../css/Contact.css";
 
 import direccionIcon from "/images/direccion.png";
+import logo from "/images/dec10.png";
 
 const BACKEND_WHATSAPP_NUMBER = import.meta.env.VITE_BACKEND_WHATSAPP_NUMBER || "34123456789";
 const BACKEND_EMAIL = import.meta.env.VITE_BACKEND_EMAIL || "tuemail@gmail.com";
 
-const position = [37.4602, -3.922740]; // Coordenadas de la ubicación
+const position = [37.4602, -3.922740];
 
-// ✅ Recentrar mapa al cargarse o hacerse visible
 function RecenterOnLoad({ position }) {
   const map = useMap();
   useEffect(() => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}, []);
-
-
-  useEffect(() => {
     setTimeout(() => {
-      map.invalidateSize(); // recalcula dimensiones
-      map.setView(position, 17, { animate: true }); // centra con animación
-      window.addEventListener("pointerdown", (e) => {
-  console.log("Tipo de entrada:", e.pointerType); // mouse | touch | pen
-});
-
+      map.invalidateSize();
+      map.setView(position, 17, { animate: true });
     }, 500);
   }, [map, position]);
-
   return null;
 }
 
-// ✅ Ajuste perfecto del marcador
 const markerIcon = new L.Icon({
-  iconUrl: "/images/direccion.png",
-  iconSize: [22, 50],
-  iconAnchor: [11, 50],   // ← valores realistas (centro abajo)
-  popupAnchor: [0, -50],
+  iconUrl: direccionIcon,
+  iconSize: [28, 55],
+  iconAnchor: [14, 55],
+  popupAnchor: [0, -55],
   className: "neon-marker",
 });
-
 
 const Contact = () => {
   const whatsappMessage = encodeURIComponent("Hola 👋, me gustaría obtener más información sobre Decor@10.");
   const mailBody = encodeURIComponent("Buenos días,\n\nQuisiera más información sobre Decor@10.\n\nGracias.");
 
   return (
-    <div className="contact-page min-vh-100 d-flex flex-column align-items-center text-white bg-dark">
-      <img src={logo} alt="Decor@10" className="mb-4 contact-logo" />
-      <h1 className="display-4 mb-3 text-neon">Contacto</h1>
-      <p className="mb-4 text-center text-white px-3">
+    <div className="contact-page d-flex flex-column align-items-center min-vh-100">
+      <img src={logo} alt="Decor@10" className="contact-logo mb-3" />
+      <h1 className="contact-title mb-2">Contacto</h1>
+      <p className="contact-subtitle text-center px-3 mb-4">
         Conecta con nosotros a través de tus plataformas favoritas.
       </p>
 
-      {/* Iconos de contacto */}
+      {/* Iconos contacto */}
       <div className="d-flex gap-4 mb-5">
         <a
           href={`https://wa.me/${BACKEND_WHATSAPP_NUMBER}?text=${whatsappMessage}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="contact-icon"
+          className="contact-icon whatsapp"
         >
           <FaWhatsapp />
         </a>
@@ -71,14 +58,14 @@ const Contact = () => {
           href={`mailto:${BACKEND_EMAIL}?subject=Contacto&body=${mailBody}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="contact-icon"
+          className="contact-icon mail"
         >
           <FaEnvelope />
         </a>
       </div>
 
       {/* Tarjeta empresa */}
-      <div className="info-card text-center mb-5 p-4 rounded">
+      <div className="info-card text-center mb-5 p-4">
         <strong>Empresa</strong>
         <br />
         Decor@10
@@ -93,7 +80,7 @@ const Contact = () => {
       </div>
 
       {/* Mapa */}
-      <div className="contact-map mb-5" style={{ width: "90%", maxWidth: "900px" }}>
+      <div className="contact-map mb-5">
         <MapContainer
           center={position}
           zoom={17}
@@ -104,46 +91,25 @@ const Contact = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/">OSM</a>'
             url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
           />
-
-          {/* ✅ Centra el mapa correctamente */}
           <RecenterOnLoad position={position} />
-
           <Marker position={position} icon={markerIcon}>
             <Popup>
-              <div style={{ textAlign: "center" }}>
-  <img
-  src="/images/dec10.png"
-  alt="Decor@10"
-  style={{
-    width: "100px",
-    height: "auto",
-    borderRadius: "8px",
-    marginBottom: "5px",
-  }}
-/>
-
-  <br />
-  <strong className="fs-3">Decor@10</strong>
-  <br />
-  <span className="fs-3">Avenida Andalucía 8</span>
-  <br />
-  <a
-    href="https://share.google/F70ZzlRGYNblJ7hBb"
-    target="_blank"
-    rel="noopener noreferrer"
-    style={{
-      display: "inline-block",
-      marginTop: "6px",
-      color: "#00eaff",
-      fontWeight: "500",
-      fontSize: "1.8rem",
-      textDecoration: "none",
-    }}
-  >
-    📍 Ver en Google Maps
-  </a>
-</div>
-
+              <div className="popup-content text-center">
+                <img src="/images/dec10.png" alt="Decor@10" className="popup-logo" />
+                <br />
+                <strong className="fs-4">Decor@10</strong>
+                <br />
+                <span className="fs-5">Avenida Andalucía 8</span>
+                <br />
+                <a
+                  href="https://share.google/F70ZzlRGYNblJ7hBb"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="popup-link"
+                >
+                  📍 Ver en Google Maps
+                </a>
+              </div>
             </Popup>
           </Marker>
         </MapContainer>

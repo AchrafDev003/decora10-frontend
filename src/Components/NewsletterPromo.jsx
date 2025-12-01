@@ -4,6 +4,7 @@ import newsletterImg from '/images/newsletter.jpg';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import * as bootstrap from 'bootstrap'; // FIX AQUI 🔥
+import { subscribeNewsletter } from '../services/api';  
 
 const NewsletterModal = () => {
   const [step, setStep] = useState(1); // 1: email, 2: mostrar código
@@ -18,7 +19,7 @@ const NewsletterModal = () => {
 
   setLoading(true);
   try {
-    const res = await axios.post('http://127.0.0.1:8000/api/v1/newsletter/subscribe', { email });
+    const res = await subscribeNewsletter(email);
     const data = res.data;
 
     if (data.success) {
@@ -51,7 +52,7 @@ const NewsletterModal = () => {
     <>
       {/* Botón abrir modal */}
       <div className="promo-trigger" data-bs-toggle="modal" data-bs-target="#customNewsletterModal">
-        <p className="fw-semibold fs-6 bg-primary p-4 d-flex align-items-center justify-content-center gap-2 rounded">
+        <p className="fw-semibold fs-6 bg-primary p-4 mb-3 d-flex align-items-center justify-content-center gap-2 rounded">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-stars animate-icon" viewBox="0 0 16 16">
             <path d="M7.5 0L6 3l-3 1.5 3 1.5 1.5 3L10.5 6l3-1.5-3-1.5L7.5 0zm6 6l-.5 1.5L12 9l1.5-.5L15 9l-.5-1.5L15 6l-1.5.5L13.5 6zM3 9.5l-.5 1L2 12l1-.5L4 12l-.5-1.5.5-1-1 .5-1-.5z" />
           </svg>

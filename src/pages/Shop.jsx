@@ -126,12 +126,14 @@ export default function Shop() {
 
       
       if (res?.success) {
-  const productosData = Array.isArray(res.data.data) ? res.data.data : Object.values(res.data.data);
-  const meta = res.data.meta || {};
+  const productosData = Array.isArray(res.data.data)
+  ? res.data.data
+  : Object.values(res.data.data);
 
-  setProductos(productosData);
-  setCurrentPage(Array.isArray(meta.current_page) ? meta.current_page[0] : meta.current_page || 1);
-  setLastPage(Array.isArray(meta.last_page) ? meta.last_page[0] : meta.last_page || 1);
+setProductos(productosData);
+setCurrentPage(Number(res.data.current_page) || 1);
+setLastPage(Number(res.data.last_page) || 1);
+
 }
  else {
         setProductos([]);

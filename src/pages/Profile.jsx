@@ -334,7 +334,7 @@ if (profileRes.success && profileRes.data) {
                       <div className="accordion-collapse show">
                        <div className="accordion-body d-flex align-items-center gap-3">
   <img
-    src={getImageUrl(fav.product)}
+    src={getImageUrl(fav.product.images ?.[0])}
     alt={fav.product?.name || "Producto"}
     style={{ width: 80, height: 80, objectFit: "cover" }}
   />
