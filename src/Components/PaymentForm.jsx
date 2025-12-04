@@ -57,6 +57,7 @@ function PaymentFormInner({ totalAmount, paymentMethod, clientSecret, onSuccess 
       }
 
       if (result.error) {
+        console.error("Error Stripe:", result.error);
         toast.error(result.error.message || "Error al procesar el pago.");
       } else if (result.paymentIntent?.status === "succeeded") {
         toast.success("✅ Pago completado correctamente");
@@ -108,14 +109,23 @@ export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", o
 
     const initializePayment = async () => {
       try {
-        // ⚠️ Pasar user_id al backend
+        // ⚡ Detectar el modo Stripe según entorno
+        const stripeMode = import.meta.env.VITE_STRIPE_MODE || "test"; // "test" o "live"
+        let method = paymentMethod;
+
+        // En test, usar Sofort si se selecciona Bizum
+        if (stripeMode === "test" && paymentMethod === "bizum") method = "sofort";
+
         const { data } = await createPaymentIntent({
           amount: totalAmount,
-          payment_method: paymentMethod,
+          payment_method: method,
           user_id: user?.id || 0,
         });
 
+        console.log("Respuesta PaymentIntent:", data);
+
         if (!data?.clientSecret) throw new Error("No se recibió clientSecret del servidor.");
+
         setClientSecret(data.clientSecret);
       } catch (err) {
         console.error("Error creando PaymentIntent:", err);

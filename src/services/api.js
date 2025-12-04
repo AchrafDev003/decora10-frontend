@@ -330,8 +330,15 @@ export const checkoutCart = async (data) => {
 // ===============================
 // 🔹 STRIPE PAYMENT INTENT
 // ===============================
-export const createPaymentIntent = (payload) =>
-  handleRequest(api.post("/payments/stripe-intent", payload));
+export const createPaymentIntent = (payload) => {
+  console.log("Payload recibido:", payload); // ✅ dentro de la función
+  return handleRequest(
+    api.post("/payments/stripe-intent", payload, {
+      headers: { ...getAuthHeader() },
+    })
+  );
+};
+
 
 
 

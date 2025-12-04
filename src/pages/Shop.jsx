@@ -45,6 +45,7 @@ export default function Shop() {
   // Cargar categorías
   // -------------------------------
   useEffect(() => {
+    window.scrollTo(0, 0); // 🔥 Fuerza a empezar arriba
     (async () => {
       try {
         const res = await getCategories();

@@ -11,6 +11,7 @@ const Cart = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    window.scrollTo(0, 0); // 🔥 Fuerza a empezar arriba
     fetchCart();
   }, [fetchCart]);
   console.log("Cart Items:", cartItems);

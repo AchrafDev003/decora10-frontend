@@ -11,6 +11,7 @@ const Gracias = () => {
   const orderCode = state?.orderCode || null;
 
   useEffect(() => {
+    window.scrollTo(0, 0); // 🔥 Fuerza a empezar arriba
     const timer = setTimeout(() => setShowConfetti(false), 5000); // Confetti 5s
     return () => clearTimeout(timer);
   }, []);

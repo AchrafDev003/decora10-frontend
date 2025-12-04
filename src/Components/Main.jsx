@@ -247,7 +247,7 @@ export default function Main() {
             className="d-block w-100"
             alt={producto.name}
             style={{
-              height: "233px",
+              height: "258px",
               objectFit: "cover",
               width: "110%",
               objectPosition: "center 70%",

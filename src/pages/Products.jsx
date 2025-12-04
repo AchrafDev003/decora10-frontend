@@ -1,7 +1,7 @@
 // src/Pages/Products.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getFeaturedProductsByCategory2, getCategories } from "../services/api";
+import { getFeaturedProductsByCategory2, getCategories,getImageUrl } from "../services/api";
 import { useCart } from "../Context/Carrito/CartContext";
 import { toast } from "react-hot-toast";
 import { FaStar, FaRegStar } from "react-icons/fa";
