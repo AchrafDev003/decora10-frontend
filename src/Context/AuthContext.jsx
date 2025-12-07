@@ -50,12 +50,10 @@ export const AuthProvider = ({ children }) => {
       if (!res.success) throw new Error("");
 
       const { user: userData, token } = res.data;
+       
 
       // ⚡ Control del email verificado
-      if (!userData.email_verified) {
-        toast.error("Email no verificado");
-        throw new Error("Email no verificado");
-      }
+     
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(userData));

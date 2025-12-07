@@ -72,6 +72,7 @@ const handleRequest = async (promise) => {
     const response = await promise;
     return { success: true, data: response.data, error: null };
   } catch (error) {
+    console.log("handleRequest error:", error);
     const status = error?.response?.status;
     const backendError =
       error?.response?.data?.message ||
@@ -79,9 +80,10 @@ const handleRequest = async (promise) => {
 
     // 🚨 Si es 401 o el backend devuelve "Unauthorized"
     if (status === 401 || error.error === "Unauthorized") {
-      toast.error("⚠️ Debes iniciar sesión para continuar.");
-      return { success: false, data: null, error: "Unauthorized" };
-    }
+  toast.error("Necesitas verificar tu email antes de iniciar sesión y disfrutar de Decora10.");
+  return { success: false, data: null, error: "Unauthorized" };
+}
+
 
     // Para otros errores, respetamos la estructura
     if (backendError) {
