@@ -54,10 +54,10 @@ api.interceptors.response.use(
       if (status === 401) {
         return Promise.reject({ success: false, data: null, error: "Unauthorized" });
       }
-      const message = data?.message || data?.error || error.message || "Error desconocido";
+      const message = data?.message || data?.error || error.message ;
       toast.error(message);
       return Promise.reject({ success: false, data: null, error: message });
-    }
+    }     
     toast.error("No se pudo conectar con el servidor.");
     return Promise.reject({ success: false, data: null, error: "Error de conexión" });
   }
@@ -75,8 +75,7 @@ const handleRequest = async (promise) => {
     const status = error?.response?.status;
     const backendError =
       error?.response?.data?.message ||
-      error?.response?.data?.error ||
-      "Error desconocido";
+      error?.response?.data?.error;
 
     // 🚨 Si es 401 o el backend devuelve "Unauthorized"
     if (status === 401 || error.error === "Unauthorized") {
@@ -85,7 +84,9 @@ const handleRequest = async (promise) => {
     }
 
     // Para otros errores, respetamos la estructura
-    toast.error(backendError);
+    if (backendError) {
+  toast.error(backendError);
+}
     return { success: false, data: null, error: backendError };
   }
 };

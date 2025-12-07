@@ -1,3 +1,4 @@
+// AuthContext.jsx
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { loginUser, registerUser, getProfile, logoutUser, loginGoogle } from "../services/api";
@@ -6,17 +7,16 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-  const savedUser = localStorage.getItem("user");
-  if (!savedUser) return null;
-
-  try {
-    return JSON.parse(savedUser);
-  } catch (e) {
-    console.warn("Error parsing user from localStorage:", e);
-    localStorage.removeItem("user");
-    return null;
-  }
-});
+    const savedUser = localStorage.getItem("user");
+    if (!savedUser) return null;
+    try {
+      return JSON.parse(savedUser);
+    } catch (e) {
+      console.warn("Error parsing user from localStorage:", e);
+      localStorage.removeItem("user");
+      return null;
+    }
+  });
 
   const [loading, setLoading] = useState(true);
 
@@ -46,48 +46,53 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const res = await loginUser({ email, password });
-      if (!res.success) throw new Error(res.error || "Error al iniciar sesión");
+
+      if (!res.success) throw new Error("");
+
       const { user: userData, token } = res.data;
+
+      // ⚡ Control del email verificado
+      if (!userData.email_verified) {
+        toast.error("Email no verificado");
+        throw new Error("Email no verificado");
+      }
+
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(userData));
       setUser(userData);
+
       toast.success("Sesión iniciada correctamente");
       return { user: userData, token };
+
     } catch (err) {
-      toast.error(err?.message || "Error al iniciar sesión");
-      throw err;
+      // ⚡ Solo log, el toast ya se mostró si es email no verificado
+      console.error("[AuthContext] Error login:", err);
+      
     }
   };
-  
 
   // ------------------- Login con Google -------------------
   const loginWithGoogle = async (idToken) => {
-  console.log("[AuthContext] Intentando login con Google, idToken:", idToken);
+    try {
+      const res = await loginGoogle(idToken);
 
-  try {
-    const res = await loginGoogle(idToken);
-    console.log("[AuthContext] Respuesta loginGoogle:", res);
+      if (!res?.success) throw new Error(res?.error || "Error login Google");
 
-    if (!res || res.success === false) throw new Error(res.error || "Error login Google");
+      const { user: userData, token } = res.data.data;
 
-    // <-- Corrección: usar res.data.data
-    const { user: userData, token } = res.data.data;
+     
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
 
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(userData));
-    setUser(userData);
+      toast.success("Login con Google exitoso!");
+      return { user: userData, token };
 
-    console.log("[AuthContext] Usuario logueado con Google:", userData);
-    toast.success("Login con Google exitoso!");
-
-    return { user: userData, token };
-  } catch (err) {
-    console.error("[AuthContext] Error login Google:", err);
-    toast.error(err?.message || "Error login Google");
-    throw err;
-  }
-};
-
+    } catch (err) {
+      console.error("[AuthContext] Error login Google:", err);
+      throw err;
+    }
+  };
 
   // ------------------- Registro -------------------
   const register = async (data) => {

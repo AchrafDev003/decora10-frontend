@@ -22,7 +22,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showFollow, setShowFollow] = useState(false);
 
-  const { cart = {}, addToCart } = useCart();
+  const { cart = {} } = useCart();
   const cartItems = cart?.items || [];
   const totalItems = cartItems.reduce((acc, item) => acc + (item.quantity || 0), 0);
 
@@ -48,25 +48,26 @@ export default function Header() {
   }, []);
 
   // Cerrar dropdowns al hacer click fuera
-  // Cerrar dropdowns al hacer click fuera de manera segura
-useEffect(() => {
-  const handleClickOutside = (e) => {
-    if (catRef.current && !catRef.current.contains(e.target)) setCatOpen(false);
-    if (accountRef.current && !accountRef.current.contains(e.target)) setAccountOpen(false);
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (catRef.current && !catRef.current.contains(e.target)) setCatOpen(false);
+      if (accountRef.current && !accountRef.current.contains(e.target)) setAccountOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Cerrar menú hamburguesa en móvil
+  const handleNavClick = () => {
+    if (mobileOpen) setMobileOpen(false);
   };
-
-  document.addEventListener("mousedown", handleClickOutside);
-
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
-
-
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchTerm.trim()) navigate(`/tienda?search=${encodeURIComponent(searchTerm.trim())}`);
+    if (searchTerm.trim()) {
+      navigate(`/tienda?search=${encodeURIComponent(searchTerm.trim())}`);
+      handleNavClick();
+    }
   };
 
   const handleAccountClick = () => {
@@ -81,7 +82,7 @@ useEffect(() => {
       <header className="shadow-sm sticky-top">
         {/* Logo */}
         <div className="text-center py-2 bg-black logo-container">
-          <Link to="/" className="d-inline-flex align-items-center text-decoration-none">
+          <Link to="/" className="d-inline-flex align-items-center text-decoration-none" onClick={handleNavClick}>
             <img
               src={logo}
               alt="Decora10"
@@ -110,11 +111,11 @@ useEffect(() => {
               <ul className="navbar-nav mb-2 mb-lg-0 align-items-center">
 
                 <li className="nav-item">
-                  <NavLink to="/" className="nav-link nav-link-custom"><FaHome /> Home</NavLink>
+                  <NavLink to="/" className="nav-link nav-link-custom" onClick={handleNavClick}><FaHome /> Home</NavLink>
                 </li>
 
                 <li className="nav-item">
-                  <NavLink to="/tienda" className="nav-link nav-link-custom"><FaStore /> Tienda</NavLink>
+                  <NavLink to="/tienda" className="nav-link nav-link-custom" onClick={handleNavClick}><FaStore /> Tienda</NavLink>
                 </li>
 
                 {/* Dropdown Categorías */}
@@ -132,17 +133,12 @@ useEffect(() => {
                         <li key={cat.id}>
                           <button
                             className="dropdown-item"
-                           onClick={() => {
-  setCatOpen(false);
-
-  if (cat.id === 76) {
-    navigate("/colchoneria");
-  } else {
-    navigate(`/tienda?category=${cat.id}`);
-  }
-}}
-
-
+                            onClick={() => {
+                              setCatOpen(false);
+                              handleNavClick();
+                              if (cat.id === 76) navigate("/colchoneria");
+                              else navigate(`/tienda?category=${cat.id}`);
+                            }}
                           >
                             {cat.name}
                           </button>
@@ -155,16 +151,16 @@ useEffect(() => {
                 </li>
 
                 <li className="nav-item">
-  <button
-    className="nav-link nav-link-custom btn btn-link"
-    onClick={() => setShowFollow(true)}
-  >
-    <FaPenNib /> Seguir pedido
-  </button>
-</li>
+                  <button
+                    className="nav-link nav-link-custom btn btn-link"
+                    onClick={() => { setShowFollow(true); handleNavClick(); }}
+                  >
+                    <FaPenNib /> Seguir pedido
+                  </button>
+                </li>
 
                 <li className="nav-item">
-                  <NavLink to="/contacto" className="nav-link nav-link-custom"><FaEnvelope /> Contacto</NavLink>
+                  <NavLink to="/contacto" className="nav-link nav-link-custom" onClick={handleNavClick}><FaEnvelope /> Contacto</NavLink>
                 </li>
 
                 {/* Mi cuenta */}
@@ -179,15 +175,15 @@ useEffect(() => {
                       </button>
                       <ul className={`dropdown-menu categories-dropdown ${accountOpen ? "show" : ""}`}>
                         <li>
-                          <Link to="/perfil" className="dropdown-item" onClick={() => setAccountOpen(false)}>Mi perfil</Link>
+                          <Link to="/perfil" className="dropdown-item" onClick={() => {setAccountOpen(false); handleNavClick();}}>Mi perfil</Link>
                         </li>
                         <li>
-                          <button className="dropdown-item" onClick={logout}>Cerrar sesión</button>
+                          <button className="dropdown-item" onClick={() => {logout(); handleNavClick();}}>Cerrar sesión</button>
                         </li>
                       </ul>
                     </>
                   ) : (
-                    <button className="btn btn-outline-light btn-sm nav-link-custom" onClick={handleAccountClick}>
+                    <button className="btn btn-outline-light btn-sm nav-link-custom" onClick={() => {setShowLogin(true); handleNavClick();}}>
                       <FaUser /> Mi cuenta
                     </button>
                   )}
@@ -216,6 +212,7 @@ useEffect(() => {
                   to="/carrito"
                   className="btn btn-light position-relative ms-3 d-flex align-items-center justify-content-center"
                   title="Ver carrito"
+                  onClick={handleNavClick}
                 >
                   <CartIcon />
                   {totalItems > 0 && (
@@ -230,12 +227,9 @@ useEffect(() => {
         </nav>
       </header>
 
-      {/* Login Modal */}
-
+      {/* Modales */}
       <LoginModal show={showLogin} onClose={() => setShowLogin(false)} />
-        {/* Follow Order Modal */}
-<FollowOrderModal show={showFollow} onClose={() => setShowFollow(false)} />
-
+      <FollowOrderModal show={showFollow} onClose={() => setShowFollow(false)} />
     </>
   );
 }

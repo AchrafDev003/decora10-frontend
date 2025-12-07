@@ -3,6 +3,9 @@
   --bs-brown: #522020;
   --bs-black: #000;
 }
+html {
+  scroll-behavior: smooth;
+}
 
 .shop-page {
   background: linear-gradient(160deg, #f7e1dd, #ffe8d5);

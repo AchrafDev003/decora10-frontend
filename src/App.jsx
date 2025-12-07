@@ -29,6 +29,8 @@ const NotFound = lazy(() => import("./pages/NotFound.jsx"));
 const Gracias = lazy(() => import("./pages/Gracias.jsx"));
 const ColchoneriaPage = lazy(() => import("./pages/ColchoneriaPage.jsx"));
 const Contact = lazy(() => import("./pages/Contact.jsx"));
+const Privacy = lazy(() => import("./pages/PrivacyPolicy.jsx"));
+
 
 function AppContent() {
   const location = useLocation();
@@ -76,6 +78,7 @@ function AppContent() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/register" element={<Register />} />
           <Route path="/gracias" element={<Gracias />} />
+          <Route path="/politica-privacidad" element={<Privacy />} />
           
 
 <Route path="/colchoneria" element={<ColchoneriaPage />} />

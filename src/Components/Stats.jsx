@@ -4,7 +4,6 @@ import NewsletterPromo from './NewsletterPromo';
 import 'animate.css';
 import decorativaImg from '/images/decorativa1.png';
 
-
 export default function StatsSection() {
   useEffect(() => {
     const counters = document.querySelectorAll(".counter");
@@ -54,36 +53,47 @@ export default function StatsSection() {
   ];
 
   return (
-    <section id="stats-section" className="position-relative container-fluid py-5" style={{ background: "linear-gradient(135deg, #2e7d32, #81c784)" }}>
+    <section
+      id="stats-section"
+      className="position-relative container-fluid py-5"
+      style={{ background: "linear-gradient(135deg, #2e7d32, #81c784)" }}
+    >
       <div className="row text-center justify-content-center">
         {statsData.map((stat, idx) => (
           <div className="col-12 col-md-3 mb-4" key={idx}>
             <div className="stat-card p-4 border rounded-4 shadow-lg">
               <i className={`bi ${stat.icon} fs-1 ${stat.color} mb-3`}></i>
-              <h2 className="counter" data-target={stat.target}>{stat.initial}</h2>
-              <p className="fw-bold">{stat.label}</p>
+              <h2 className="counter mb-2" data-target={stat.target}>
+                {stat.initial}
+              </h2>
+              <p className="fw-bold mb-0">{stat.label}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Imagen flotante entre secciones */}
-       <img
+      {/* Imagen flotante */}
+      <img
         src={decorativaImg}
         alt="Decorativa"
         className="floating-image img-fluid py-5"
       />
-
 
       {/* Componente animado al 70% visible */}
       <NewsletterPromo />
 
       <style jsx>{`
         .stat-card {
+        padding: 2rem;
           background-color: #1a1a1a;
-          color: #fff;
+          color: #fff; /* ⚡ Forzamos blanco */
           box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
           transition: all 0.4s ease;
+        }
+
+        .stat-card h2.counter,
+        .stat-card p {
+          color: #fff !important; /* ⚡ Garantiza blanco */
         }
 
         .stat-card:hover {
@@ -100,43 +110,40 @@ export default function StatsSection() {
         }
 
         /* Imagen flotante */
-       /* Imagen flotante */
-/* Desktop (tu diseño actual, corregido un poco) */
-.floating-image {
-  position: absolute;
-  bottom: -130px;
-  left: 200px;
-  max-width: 100% !important;
-  height: 30rem;
-  object-fit: contain;
-  opacity: 2;
-  z-index: 10;
-  animation: float 6s ease-in-out infinite;
-  pointer-events: none;
-}
+        .floating-image {
+          position: absolute;
+          bottom: -130px;
+          left: 200px;
+          max-width: 100% !important;
+          height: 30rem;
+          object-fit: contain;
+          opacity: 1;
+          z-index: 10;
+          animation: float 6s ease-in-out infinite;
+          pointer-events: none;
+        }
 
-/* ✔ RESPONSIVE: sigue entre secciones pero sin scroll */
-@media (max-width: 768px) {
-  .floating-image {
-    position: absolute !important;
-    bottom: -80px !important;   /* sigue entre secciones */
-    left: 50% !important;       /* centramos */
-    transform: translateX(-50%) !important; /* centra bien */
-    
-    width: 70% !important;      /* tamaño perfecto en móvil */
-    height: auto !important;
-    
-    padding: 0 !important;      /* elimina padding que rompía */
-    margin: 0 !important;
-  }
+        @media (max-width: 768px) {
+          .floating-image {
+            position: absolute !important;
+            bottom: -70px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 70% !important;
+            height: auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          #stats-section {
+            overflow-x: hidden !important;
+          }
+            
+        }
 
-  #stats-section {
-    overflow-x: hidden !important;
-  }
-}
-
-  
-
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-15px); }
+        }
       `}</style>
     </section>
   );

@@ -5,7 +5,7 @@
     import "aos/dist/aos.css";
     import { useCart } from "../Context/Carrito/CartContext";
     import { useAuth } from "../Context/AuthContext";
-    import { getFavorites, addFavorite, removeFavorite } from "../services/api";
+    import { getFavorites, addFavorite, removeFavorite,getImageUrl } from "../services/api";
     import { getColchoneriaHighlights2 } from "../services/api"; // 🔹 nueva función
     import { toast } from "react-hot-toast";
     import 'bootstrap/dist/css/bootstrap.min.css';
@@ -13,6 +13,7 @@
     import "../css/colchoneria.css";
     import AuthModal from "../Components/LoginModal";
     import logoColchon from "/images/colchon10.png";
+    const PLACEHOLDER_IMG = "/images/placeholder.png";
 
     const MARCA_COLORS = {
     Biolife: "#d32f2f",
@@ -167,7 +168,8 @@
                       return (
                         <div className={`carousel-item ${idxImg === 0 ? "active" : ""}`} key={idxImg}>
                           <div className="position-relative">
-                            <img src={url} className="d-block w-100 cp-img" alt={producto.name} />
+                            
+                            <img src={getImageUrl(img) || PLACEHOLDER_IMG} className="d-block w-100 cp-img" alt={producto.name} />
                             <Link to={`/producto/${producto.id}`} className="cp-overlay-link">Ver producto</Link>
                           </div>
                         </div>

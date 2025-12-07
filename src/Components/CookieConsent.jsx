@@ -9,19 +9,20 @@ export default function CookieConsentBanner() {
       disableStyles: true,
       debug: import.meta.env.DEV,
       guiOptions: {
-        consentModal: {
-          layout: "box",
-          position: "bottom center", // Más centrado para móviles
-          equalWeightButtons: true,
-          flipButtons: false,
-        },
-        preferencesModal: {
-          layout: "box",
-          position: "center",
-          equalWeightButtons: true,
-          flipButtons: false,
-        },
-      },
+  consentModal: {
+    layout: "box",
+    position: "middle center", // SIEMPRE AL CENTRO
+    equalWeightButtons: true,
+    flipButtons: false,
+  },
+  preferencesModal: {
+    layout: "box",
+    position: "center",
+    equalWeightButtons: true,
+    flipButtons: false,
+  },
+},
+
       categories: {
         necessary: { readOnly: true, enabled: true },
         analytics: {},

@@ -152,6 +152,7 @@ setLastPage(Number(res.data.last_page) || 1);
   // Detectar categoría desde URL
   // -------------------------------
  useEffect(() => {
+   window.scrollTo(0, 0); // 🔥 Fuerza a empezar arriba
   const categoryFromUrl = searchParams.get("category") || "";
   setSelectedCategory(categoryFromUrl);
   fetchProductos(1, categoryFromUrl);
