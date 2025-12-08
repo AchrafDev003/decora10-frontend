@@ -1,13 +1,6 @@
 // src/Components/PaymentForm.jsx
 import React, { useState, useEffect } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-import {
-  Elements,
-  useStripe,
-  useElements,
-  CardElement,
-  PaymentElement,
-} from "@stripe/react-stripe-js";
+import { useStripe, useElements, CardElement, PaymentElement } from "@stripe/react-stripe-js";
 import { toast } from "react-hot-toast";
 import { createPaymentIntent } from "../services/api"; // Endpoint Laravel
 import { useAuth } from "../Context/AuthContext";
@@ -100,52 +93,13 @@ function PaymentFormInner({ totalAmount, paymentMethod, clientSecret, onSuccess 
 }
 
 // Componente principal
-export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", onSuccess }) {
-  const [clientSecret, setClientSecret] = useState(null);
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (!totalAmount || totalAmount <= 0) return;
-
-    const initializePayment = async () => {
-      try {
-        // ⚡ Detectar el modo Stripe según entorno
-        const stripeMode = import.meta.env.VITE_STRIPE_MODE || "live"; // "test" o "live"
-        let method = paymentMethod;
-
-        // En test, usar Sofort si se selecciona Bizum
-        if (stripeMode === "test" && paymentMethod === "bizum") method = "sofort";
-
-        const { data } = await createPaymentIntent({
-          amount: totalAmount,
-          payment_method: method,
-          user_id: user?.id || 0,
-        });
-
-        console.log("Respuesta PaymentIntent:", data);
-
-        if (!data?.clientSecret) throw new Error("No se recibió clientSecret del servidor.");
-
-        setClientSecret(data.clientSecret);
-      } catch (err) {
-        console.error("Error creando PaymentIntent:", err);
-        toast.error("No se pudo iniciar el pago. Inténtalo de nuevo.");
-      }
-    };
-
-    initializePayment();
-  }, [totalAmount, paymentMethod, user?.id]);
-
-  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-
+export default function PaymentForm({ totalAmount, paymentMethod, clientSecret, onSuccess }) {
   return (
-    <Elements stripe={stripePromise} options={clientSecret ? { clientSecret } : {}}>
-      <PaymentFormInner
-        totalAmount={totalAmount}
-        paymentMethod={paymentMethod}
-        clientSecret={clientSecret}
-        onSuccess={onSuccess}
-      />
-    </Elements>
+    <PaymentFormInner
+      totalAmount={totalAmount}
+      paymentMethod={paymentMethod}
+      clientSecret={clientSecret}
+      onSuccess={onSuccess}
+    />
   );
 }
