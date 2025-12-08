@@ -110,7 +110,7 @@ export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", o
     const initializePayment = async () => {
       try {
         // ⚡ Detectar el modo Stripe según entorno
-        const stripeMode = import.meta.env.VITE_STRIPE_MODE || "test"; // "test" o "live"
+        const stripeMode = import.meta.env.VITE_STRIPE_MODE || "live"; // "test" o "live"
         let method = paymentMethod;
 
         // En test, usar Sofort si se selecciona Bizum
