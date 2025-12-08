@@ -446,7 +446,7 @@ useEffect(() => {
           {["card", "bizum"].includes(formData.payment_method) ? (
   <Elements stripe={stripePromise}>
     <PaymentForm
-      amount={finalTotal}
+      totalAmount={finalTotal}
       onSuccess={(pi) => handleOrder(pi)}
       disabled={processingOrder}
       paymentMethod={formData.payment_method}
