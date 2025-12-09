@@ -5,11 +5,14 @@ import { useCart } from "../Context/Carrito/CartContext";
 import { useAuth } from "../Context/AuthContext";
 import logo from "/images/dec10.png";
 import CartIcon from "./CartIcon";
-import { getCategories } from "../services/api";
+import { getCategories,quickSearch } from "../services/api";
 import { FaUser, FaSearch, FaHome, FaStore, FaThList, FaPenNib, FaEnvelope } from "react-icons/fa";
 import LoginModal from "./LoginModal";
 import { toast } from "react-toastify";
 import FollowOrderModal from "./FollowOrderModal";
+
+import QuickSearchModal from "./QuickSearchModal";
+import useDebounce from "../Hooks/useDebounce";
 
 import "../css/app.css";
 
@@ -31,6 +34,12 @@ export default function Header() {
 
   const catRef = useRef();
   const accountRef = useRef();
+  const [quickResults, setQuickResults] = useState([]);
+const [showQuickModal, setShowQuickModal] = useState(false);
+const [quickLoading, setQuickLoading] = useState(false);
+
+const debouncedSearch = useDebounce(searchTerm, 350);
+
 
   // Cargar categorías
   useEffect(() => {
@@ -62,13 +71,25 @@ export default function Header() {
     if (mobileOpen) setMobileOpen(false);
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/tienda?search=${encodeURIComponent(searchTerm.trim())}`);
-      handleNavClick();
+  useEffect(() => {
+  const fetchQuick = async () => {
+    if (debouncedSearch.trim().length < 2) return;
+
+    setQuickLoading(true);
+    const { success, data } = await quickSearch(debouncedSearch.trim());
+    setQuickLoading(false);
+
+    if (success) {
+      
+      setQuickResults(data.data);
+      
+      setShowQuickModal(true);
     }
   };
+
+  fetchQuick();
+}, [debouncedSearch]);
+
 
   const handleAccountClick = () => {
     if (!user) setShowLogin(true);
@@ -191,37 +212,71 @@ export default function Header() {
               </ul>
 
               {/* Buscador + Carrito */}
-              <div className="d-flex align-items-center ms-lg-3 mt-2 mt-lg-0">
-                <form className="input-group search-wrapper" onSubmit={handleSearch}>
-                  <input
-                    type="text"
-                    className="form-control form-control-sm rounded-start"
-                    placeholder="Buscar productos..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <button
-                    className="btn btn-sm btn-light rounded-end d-flex align-items-center justify-content-center"
-                    type="submit"
-                  >
-                    <FaSearch />
-                  </button>
-                </form>
+              <div className="d-flex align-items-center ms-lg-3 mt-2 mt-lg-0 gap-2">
+  {/* Buscador */}
+  <form
+    className="input-group search-wrapper shadow-sm"
+    onSubmit={(e) => e.preventDefault()}
+    style={{
+      borderRadius: "1rem",
+      overflow: "hidden",
+      backgroundColor: "#fff",
+      maxWidth: "300px",
+    }}
+  >
+    <input
+      type="text"
+      className="form-control form-control-sm border-0"
+      placeholder="Buscar productos..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      style={{
+        padding: "0.5rem 1rem",
+        borderRadius: "0",
+        fontSize: "1.4rem",
+      }}
+    />
+    <button
+      className="btn  d-flex align-items-center justify-content-center"
+      type="button"
+      onClick={() => setShowQuickModal(true)}
+      style={{
+        borderRadius: "0",
+        padding: "0.5rem 1rem",
+        backgroundColor: "#fff!important",
+      }}
+    >
+      <FaSearch />
+    </button>
+  </form>
 
-                <Link
-                  to="/carrito"
-                  className="btn btn-light position-relative ms-3 d-flex align-items-center justify-content-center"
-                  title="Ver carrito"
-                  onClick={handleNavClick}
-                >
-                  <CartIcon />
-                  {totalItems > 0 && (
-                    <span className="badge bg-danger position-absolute top-0 start-100 translate-middle">
-                      {totalItems}
-                    </span>
-                  )}
-                </Link>
-              </div>
+  {/* Carrito */}
+  <Link
+    to="/carrito"
+    className="btn btn-light position-relative d-flex align-items-center justify-content-center shadow-sm"
+    title="Ver carrito"
+    onClick={handleNavClick}
+    style={{
+      marginLeft: "2rem",
+      borderRadius: "1rem",
+      width: "33px",
+      height: "30px",
+      backgroundColor: "#f0a80dff",
+      color: "#0a0a0aff",
+      fontSize: "1,2rem",
+    }}
+  >
+    <CartIcon />
+    {totalItems > 0 && (
+      <span className="badge bg-danger fs-3 position-absolute top-0 start-100 translate-middle rounded-pill">
+        {totalItems}
+      </span>
+    )}
+  </Link>
+</div>
+
+
+
             </div>
           </div>
         </nav>
@@ -230,6 +285,14 @@ export default function Header() {
       {/* Modales */}
       <LoginModal show={showLogin} onClose={() => setShowLogin(false)} />
       <FollowOrderModal show={showFollow} onClose={() => setShowFollow(false)} />
+        <QuickSearchModal
+  show={showQuickModal}
+  onClose={() => setShowQuickModal(false)}
+  results={quickResults}
+  loading={quickLoading}
+/>
+
+        
     </>
   );
 }

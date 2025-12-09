@@ -49,14 +49,15 @@ export default function CartIcon() {
     <span
       className="position-absolute top-0 start-100 translate-middle rounded-pill"
       style={{
-        backgroundColor: "#ddb4a9",
-        color: "#000",
-        fontSize: "0.75rem",
+        backgroundColor: "#4e1505ff",
+        color: "#f5f0f0ff",
+        fontSize: "0.85rem",
         fontWeight: "700",
-        padding: "0.35em 0.5em",
+        padding: "0.35em 0.8em",
         boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
         transition: "transform 0.3s ease",
         animation: "bounce 0.5s",
+        marginTop: "-6px",
       }}
     >
       {totalItems}
@@ -109,7 +110,7 @@ export default function CartIcon() {
                     />
                     <div className="flex-grow-1">
                       <strong>{item.name}</strong>
-                      <div className="small">
+                      <div className="small fs-5">
                         Cantidad: {item.quantity || 0} - €
                         {((item.promo_price ?? item.price) * (item.quantity || 0)).toFixed(2)}
                       </div>

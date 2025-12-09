@@ -379,3 +379,20 @@ h3 {
     padding: 1rem;
     font-size: 1.6rem;
 }
+/* Asegurarse de que el modal quede encima del header sticky */
+header.sticky-top {
+  z-index: 1030; /* menor que el modal */
+  position: sticky;
+}
+
+/* Quick search modal específico */
+.quick-search-modal-dialog {
+  z-index: 1055 !important; /* siempre por encima de la navbar */
+  max-width: 600px;
+}
+
+/* No tocar position: relative */
+
+
+
+
