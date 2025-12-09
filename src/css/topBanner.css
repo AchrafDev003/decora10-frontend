@@ -1,0 +1,82 @@
+.top-banner {
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+  background: linear-gradient(90deg, #ff9900, #ff6600);
+  color: white;
+  padding: 10px 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  animation: fadeSlideDown 0.6s ease-out;
+}
+
+@keyframes fadeSlideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.top-banner-content {
+  display: flex;
+  white-space: nowrap;
+  animation: bannerScroll 18s linear infinite;
+}
+
+@keyframes bannerScroll {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.coupon-message {
+  margin: 0 40px;
+  font-weight: 600;
+  font-size: 1.2rem;
+  opacity: 0.95;
+}
+
+.top-banner-close {
+  position: absolute;
+  right: 15px;
+  top: 8px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.4rem;
+  cursor: pointer;
+  font-weight: bold;
+  z-index: 1100;
+}
+.coupon-code {
+  background: #fff;
+  color: #000;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.coupon-discount {
+  color: #ffd86b;
+  font-weight: 800;
+}
+
+.coupon-remaining {
+  color: #ffeb3b;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(255, 235, 59, 0.85);
+}
+
+.coupon-cta {
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: underline;
+}
+

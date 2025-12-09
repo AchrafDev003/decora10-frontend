@@ -422,6 +422,8 @@ export const validateCoupon = (payload) => handleRequest(api.post("/coupons/vali
 
 
 export const listCoupons = () => handleRequest(api.get("/coupons"));
+export const getActiveCoupons = () => handleRequest(api.get("/coupons/active"));
+  
 export const createCoupon = (data) => handleRequest(api.post("/coupons", data));
 export const getCoupon = (id) => handleRequest(api.get(`/coupons/${id}`));
 export const updateCoupon = (id, data) => handleRequest(api.put(`/coupons/${id}`, data));

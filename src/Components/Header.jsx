@@ -10,7 +10,7 @@ import { FaUser, FaSearch, FaHome, FaStore, FaThList, FaPenNib, FaEnvelope } fro
 import LoginModal from "./LoginModal";
 import { toast } from "react-toastify";
 import FollowOrderModal from "./FollowOrderModal";
-
+import TopBanner from "./TopBanner";
 import QuickSearchModal from "./QuickSearchModal";
 import useDebounce from "../Hooks/useDebounce";
 
@@ -115,6 +115,11 @@ const debouncedSearch = useDebounce(searchTerm, 350);
               Decor@ <span style={{ color: "orange" }}>10</span>
             </h1>
           </Link>
+          <TopBanner 
+  message="🎉 Gran promoción de diciembre: 20% de descuento en lámparas seleccionadas!" 
+  link="/tienda" 
+  linkText="Ver productos" 
+/>
         </div>
 
         {/* Navbar */}
