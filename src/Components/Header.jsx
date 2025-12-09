@@ -112,7 +112,7 @@ const debouncedSearch = useDebounce(searchTerm, 350);
               style={{ borderRadius: "40%", border: "3px solid orange", objectFit: "cover" }}
             />
             <h1 className="fw-bold m-0 fs-3 text-white">
-              Decor@ <span style={{ color: "orange" }}>10</span>
+              Decor <span style={{ color: "orange" }}>@</span>10
             </h1>
           </Link>
           <TopBanner 
