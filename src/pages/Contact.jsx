@@ -88,9 +88,10 @@ const Contact = () => {
           style={{ height: "400px", width: "100%", borderRadius: "1rem" }}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/">OSM</a>'
-            url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
-          />
+  attribution='&copy; <a href="https://www.openstreetmap.org/">OSM</a>'
+  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+/>
+
           <RecenterOnLoad position={position} />
           <Marker position={position} icon={markerIcon}>
             <Popup>

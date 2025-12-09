@@ -224,6 +224,12 @@ export const getFeaturedProductsByCategory2 = (params = {}) =>
 export const getColchoneriaHighlights2 = () =>
   handleRequest(api.get("/products/colchoneria2"));
 
+export const quickSearch = (query) =>
+  handleRequest(
+    api.get("/products/quick-search", {
+      params: { query }
+    })
+  );
 
 
 // ===============================
