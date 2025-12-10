@@ -30,6 +30,7 @@ const Gracias = lazy(() => import("./pages/Gracias.jsx"));
 const ColchoneriaPage = lazy(() => import("./pages/ColchoneriaPage.jsx"));
 const Contact = lazy(() => import("./pages/Contact.jsx"));
 const Privacy = lazy(() => import("./pages/PrivacyPolicy.jsx"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail.jsx"));
 
 
 function AppContent() {
@@ -79,6 +80,7 @@ function AppContent() {
           <Route path="/register" element={<Register />} />
           <Route path="/gracias" element={<Gracias />} />
           <Route path="/politica-privacidad" element={<Privacy />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           
 
 <Route path="/colchoneria" element={<ColchoneriaPage />} />
