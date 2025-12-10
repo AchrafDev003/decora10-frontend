@@ -1,6 +1,6 @@
 // src/pages/VerifyEmail.jsx
 import { useEffect, useState } from "react";
-import LoginModal from "./LoginModal";
+import LoginModal from "../Components/LoginModal";
 
 const VerifyEmail = () => {
   const [message, setMessage] = useState("Verificando tu correo...");
