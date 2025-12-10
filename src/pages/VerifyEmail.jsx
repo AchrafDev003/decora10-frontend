@@ -52,7 +52,7 @@ const VerifyEmail = () => {
             <h1>{message}</h1>
             {message === "Correo verificado exitosamente" && (
               <button
-                className="btn btn-outline-light btn-primary btn-sm nav-link-custom"
+                className="btn btn-outline-light fs-4 p-3 btn-primary btn-sm nav-link-custom"
                 onClick={() => setShowLogin(true)}
                 style={{ marginTop: "20px" }}
               >
