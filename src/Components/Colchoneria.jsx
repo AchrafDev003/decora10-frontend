@@ -112,7 +112,9 @@ export default function Colchoneria() {
         image: producto.images?.[0]?.image_path ?? "/images/ITEM Home.jpg",
         measure,
       }, 1);
-      toast.success("Añadido al carrito");
+      // Backend devuelve { success: true/false }
+    
+
     } catch (err) { toast.error("No se pudo añadir al carrito"); }
   };
 

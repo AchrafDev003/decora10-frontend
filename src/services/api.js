@@ -80,7 +80,7 @@ const handleRequest = async (promise) => {
 
     // 🚨 Si es 401 o el backend devuelve "Unauthorized"
     if (status === 401 || error.error === "Unauthorized") {
-  toast.error("Necesitas verificar tu email antes de iniciar sesión y disfrutar de Decora10.");
+  //toast.error("Necesitas verificar tu email antes de iniciar sesión y disfrutar de Decora10.");
   return { success: false, data: null, error: "Unauthorized" };
 }
 
@@ -272,9 +272,10 @@ export const addToCart = async (productId, quantity = 1) => {
       { quantity },
       { headers: getAuthHeader() }
     );
+    console.log("addToCart response:", res.data);
     return res.data;
   } catch (err) {
-    console.error("addToCart error:", err.response?.data || err.message);
+    console.error("addToCart error:", err.error || err.message);
     return { success: false, error: err.response?.data?.message || err.message };
   }
 };

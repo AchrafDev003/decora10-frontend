@@ -1,5 +1,5 @@
 // src/pages/VerifyEmail.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import LoginModal from "../Components/LoginModal";
 
 const VerifyEmail = () => {
@@ -7,7 +7,13 @@ const VerifyEmail = () => {
   const [loading, setLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
 
+  // Evita doble ejecución del useEffect en React.StrictMode
+  const hasFetched = useRef(false);
+
   useEffect(() => {
+    if (hasFetched.current) return; // <-- Previene la segunda llamada
+    hasFetched.current = true;
+
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
 
@@ -17,19 +23,26 @@ const VerifyEmail = () => {
       return;
     }
 
-    fetch(`${import.meta.env.VITE_API_URL}/verify-email/${token}`)
-      .then(async (res) => {
+    const verifyEmail = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/verify-email/${token}`
+        );
         const data = await res.json();
+
         if (res.ok) {
           setMessage(data.message);
         } else {
           setMessage(data.error || "Error al verificar el correo");
         }
-      })
-      .catch(() => {
+      } catch (err) {
         setMessage("Error al verificar el correo");
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verifyEmail();
   }, []);
 
   return (

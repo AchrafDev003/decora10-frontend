@@ -105,7 +105,7 @@
       image: producto.images?.[0]?.image_path ?? "/images/placeholder.png",
       measure,
     }, 1);
-    toast.success("Añadido al carrito");
+    
   } catch (err) {
     toast.error("No se pudo añadir al carrito");
   }

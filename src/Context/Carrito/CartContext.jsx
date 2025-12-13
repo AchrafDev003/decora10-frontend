@@ -75,13 +75,11 @@ export const CartProvider = ({ children }) => {
 
     // Usuario autenticado: llamar a la API
     const res = await apiAddToCart(product.id, quantity); // POST /cart/items/{id} {quantity}
-
+           console.log("addToCart response:", res);
     if (res.success) {
-      //toast.success("Producto añadido al carrito");
+      toast.success("Producto añadido al carrito");
       await fetchCart(); // refresca el carrito del backend
-    } else {
-      toast.error(res.error || "No se pudo añadir al carrito");
-    }
+    } 
   } catch (err) {
     console.error("Error al añadir al carrito:", err);
     toast.error("No se pudo añadir al carrito");
