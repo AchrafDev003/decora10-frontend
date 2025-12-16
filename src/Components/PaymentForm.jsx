@@ -138,7 +138,7 @@ export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", o
   }, [totalAmount, paymentMethod, user?.id]);
 
   const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-    console.log(stripePromise);
+    console.log("Stripe promise console: ".stripePromise);
 
   return (
     <Elements stripe={stripePromise} options={clientSecret ? { clientSecret } : {}}>
