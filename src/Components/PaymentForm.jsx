@@ -16,6 +16,7 @@ const CARD_ELEMENT_OPTIONS = {
   style: {
     base: {
       color: "#fff",
+      padding: "10px 12px",
       fontFamily: "Segoe UI, Roboto, sans-serif",
       fontSmoothing: "antialiased",
       fontSize: "16px",
@@ -137,6 +138,7 @@ export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", o
   }, [totalAmount, paymentMethod, user?.id]);
 
   const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+    console.log(stripePromise);
 
   return (
     <Elements stripe={stripePromise} options={clientSecret ? { clientSecret } : {}}>
