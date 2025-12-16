@@ -26,7 +26,6 @@ const CARD_ELEMENT_OPTIONS = {
   },
 };
 
-// Componente interno que maneja el formulario
 function PaymentFormInner({ totalAmount, paymentMethod, clientSecret, onSuccess }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -44,17 +43,11 @@ function PaymentFormInner({ totalAmount, paymentMethod, clientSecret, onSuccess 
       if (paymentMethod === "card") {
         const card = elements.getElement(CardElement);
         if (!card) throw new Error("CardElement no está montado.");
-        result = await stripe.confirmCardPayment(clientSecret, {
-          payment_method: { card },
-        });
+        result = await stripe.confirmCardPayment(clientSecret, { payment_method: { card } });
       } else {
         const paymentElement = elements.getElement(PaymentElement);
         if (!paymentElement) throw new Error("PaymentElement no está montado.");
-        result = await stripe.confirmPayment({
-          elements,
-          clientSecret,
-          confirmParams: { return_url: window.location.origin + "/gracias" },
-        });
+        result = await stripe.confirmPayment({ elements, clientSecret });
       }
 
       if (result.error) {
@@ -73,34 +66,20 @@ function PaymentFormInner({ totalAmount, paymentMethod, clientSecret, onSuccess 
       setLoading(false);
     }
   };
-       
-  if (!clientSecret)
-    return <p className="text-white">Cargando formulario de pago...</p>;
+
+  if (!clientSecret) return <p className="text-white">Cargando formulario de pago...</p>;
 
   return (
     <form onSubmit={handleSubmit} className="p-3 bg-dark rounded shadow-lg">
-      {paymentMethod === "card" && (
-        <div className="mb-3">
-          <CardElement options={CARD_ELEMENT_OPTIONS} />
-        </div>
-      )}
-      {paymentMethod !== "card" && (
-        <div className="mb-3">
-          <PaymentElement />
-        </div>
-      )}
-      <button
-        type="submit"
-        disabled={loading || !stripe || !clientSecret}
-        className="btn btn-primary w-100 py-3 fw-semibold"
-      >
+      {paymentMethod === "card" && <CardElement options={CARD_ELEMENT_OPTIONS} className="mb-3" />}
+      {paymentMethod !== "card" && <PaymentElement className="mb-3" />}
+      <button type="submit" disabled={loading || !stripe || !clientSecret} className="btn btn-primary w-100 py-3 fw-semibold">
         {loading ? "Procesando..." : `Pagar €${totalAmount.toFixed(2)}`}
       </button>
     </form>
   );
 }
 
-// Componente principal
 export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", onSuccess }) {
   const [clientSecret, setClientSecret] = useState(null);
   const { user } = useAuth();
@@ -110,12 +89,7 @@ export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", o
 
     const initializePayment = async () => {
       try {
-        // ⚡ Detectar el modo Stripe según entorno
-        const stripeMode = import.meta.env.VITE_STRIPE_MODE || "live"; // "test" o "live"
-        let method = paymentMethod;
-
-        // En test, usar Sofort si se selecciona Bizum
-        if (stripeMode === "test" && paymentMethod === "bizum") method = "sofort";
+        const method = paymentMethod === "bizum" ? "sofort" : paymentMethod;
 
         const { data } = await createPaymentIntent({
           amount: totalAmount,
@@ -123,10 +97,7 @@ export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", o
           user_id: user?.id || 0,
         });
 
-        
-
         if (!data?.clientSecret) throw new Error("No se recibió clientSecret del servidor.");
-
         setClientSecret(data.clientSecret);
       } catch (err) {
         console.error("Error creando PaymentIntent:", err);
@@ -138,16 +109,11 @@ export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", o
   }, [totalAmount, paymentMethod, user?.id]);
 
   const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-    console.log("Stripe promise console: ".stripePromise);
+  console.log("Stripe promise console:", stripePromise);
 
   return (
     <Elements stripe={stripePromise} options={clientSecret ? { clientSecret } : {}}>
-      <PaymentFormInner
-        totalAmount={totalAmount}
-        paymentMethod={paymentMethod}
-        clientSecret={clientSecret}
-        onSuccess={onSuccess}
-      />
+      <PaymentFormInner totalAmount={totalAmount} paymentMethod={paymentMethod} clientSecret={clientSecret} onSuccess={onSuccess} />
     </Elements>
   );
 }
