@@ -33,7 +33,8 @@ async function geocodePostalCode(postalCode) {
 
 // Clave pública Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-console.log("Stripe promise in Checkout: ", stripePromise);
+console.log("Stripe promise:", stripePromise)
+
 
 // Posición de la tienda (Avenida Andalucía 8, Alcalá la Real)
 const STORE_POSITION = [37.4602, -3.922740]; // [lat, lng]
