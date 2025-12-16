@@ -39,7 +39,7 @@ useEffect(() => {
   // Abrir automáticamente después de 40 segundos
   const timer = setTimeout(() => {
     bsModal.show();
-  }, 10000);
+  }, 30000);
 
   // Cleanup al desmontar
   return () => {

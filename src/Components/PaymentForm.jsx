@@ -9,7 +9,7 @@ import {
   PaymentElement,
 } from "@stripe/react-stripe-js";
 import { toast } from "react-hot-toast";
-import { createPaymentIntent } from "../services/api";
+import { createPaymentIntent } from "../services/api"; // Endpoint Laravel
 import { useAuth } from "../Context/AuthContext";
 
 const CARD_ELEMENT_OPTIONS = {
@@ -25,6 +25,7 @@ const CARD_ELEMENT_OPTIONS = {
   },
 };
 
+// Componente interno que maneja el formulario
 function PaymentFormInner({ totalAmount, paymentMethod, clientSecret, onSuccess }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -32,21 +33,22 @@ function PaymentFormInner({ totalAmount, paymentMethod, clientSecret, onSuccess 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!stripe || !elements) return toast.error("Stripe no está listo.");
+    if (!stripe || !elements) return toast.error("Stripe no está listo todavía.");
     if (!clientSecret) return toast.error("Error: clientSecret no disponible.");
 
     setLoading(true);
-
     try {
       let result;
 
       if (paymentMethod === "card") {
         const card = elements.getElement(CardElement);
-        if (!card) throw new Error("CardElement no montado.");
-        result = await stripe.confirmCardPayment(clientSecret, { payment_method: { card } });
+        if (!card) throw new Error("CardElement no está montado.");
+        result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: { card },
+        });
       } else {
-        const paymentEl = elements.getElement(PaymentElement);
-        if (!paymentEl) throw new Error("PaymentElement no montado.");
+        const paymentElement = elements.getElement(PaymentElement);
+        if (!paymentElement) throw new Error("PaymentElement no está montado.");
         result = await stripe.confirmPayment({
           elements,
           clientSecret,
@@ -55,29 +57,37 @@ function PaymentFormInner({ totalAmount, paymentMethod, clientSecret, onSuccess 
       }
 
       if (result.error) {
-        toast.error(result.error.message || "Error procesando el pago.");
+        console.error("Error Stripe:", result.error);
+        toast.error(result.error.message || "Error al procesar el pago.");
       } else if (result.paymentIntent?.status === "succeeded") {
         toast.success("✅ Pago completado correctamente");
         if (onSuccess) onSuccess(result.paymentIntent);
-      } else if (result.paymentIntent?.status === "requires_payment_method") {
-        toast.error("El pago fue rechazado, prueba otro método.");
       } else {
-        toast("Pago en proceso, espera...");
+        toast("El pago está en proceso, por favor espera.");
       }
     } catch (err) {
-      console.error("Error Stripe:", err);
-      toast.error("Error inesperado al procesar el pago.");
+      console.error("Stripe payment error:", err);
+      toast.error("❌ Error al procesar el pago. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
   };
-
-  if (!clientSecret) return <p className="text-white">Cargando formulario de pago...</p>;
+       
+  if (!clientSecret)
+    return <p className="text-white">Cargando formulario de pago...</p>;
 
   return (
     <form onSubmit={handleSubmit} className="p-3 bg-dark rounded shadow-lg">
-      {paymentMethod === "card" && <CardElement options={CARD_ELEMENT_OPTIONS} />}
-      {paymentMethod !== "card" && <PaymentElement />}
+      {paymentMethod === "card" && (
+        <div className="mb-3">
+          <CardElement options={CARD_ELEMENT_OPTIONS} />
+        </div>
+      )}
+      {paymentMethod !== "card" && (
+        <div className="mb-3">
+          <PaymentElement />
+        </div>
+      )}
       <button
         type="submit"
         disabled={loading || !stripe || !clientSecret}
@@ -89,18 +99,21 @@ function PaymentFormInner({ totalAmount, paymentMethod, clientSecret, onSuccess 
   );
 }
 
+// Componente principal
 export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", onSuccess }) {
   const [clientSecret, setClientSecret] = useState(null);
   const { user } = useAuth();
 
   useEffect(() => {
-    setClientSecret(null); // 🔹 limpiar clientSecret anterior
     if (!totalAmount || totalAmount <= 0) return;
 
     const initializePayment = async () => {
       try {
-        const stripeMode = import.meta.env.VITE_STRIPE_MODE || "live";
+        // ⚡ Detectar el modo Stripe según entorno
+        const stripeMode = import.meta.env.VITE_STRIPE_MODE || "live"; // "test" o "live"
         let method = paymentMethod;
+
+        // En test, usar Sofort si se selecciona Bizum
         if (stripeMode === "test" && paymentMethod === "bizum") method = "sofort";
 
         const { data } = await createPaymentIntent({
@@ -109,7 +122,10 @@ export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", o
           user_id: user?.id || 0,
         });
 
+        
+
         if (!data?.clientSecret) throw new Error("No se recibió clientSecret del servidor.");
+
         setClientSecret(data.clientSecret);
       } catch (err) {
         console.error("Error creando PaymentIntent:", err);
