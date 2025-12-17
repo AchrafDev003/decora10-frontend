@@ -7,8 +7,7 @@ import { checkoutCart, validateCoupon } from "../services/api";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../Context/AuthContext";
 
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
+
 import PaymentForm from "../Components/PaymentForm";
 import "../css/Checkout.css";
 
@@ -32,8 +31,7 @@ async function geocodePostalCode(postalCode) {
 }
 
 // Clave pública Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-console.log("Stripe promise:", stripePromise)
+
 
 
 // Posición de la tienda (Avenida Andalucía 8, Alcalá la Real)
@@ -211,86 +209,71 @@ const Checkout = () => {
   };
 
   // ------------------- Checkout / Orden -------------------
-  const handleOrder = async (paymentIntent = null) => {
-    if (processingOrder) return;
-    setProcessingOrder(true);
+  // ------------------- Checkout / Orden -------------------
+const handleOrder = async (paymentIntent = null) => {
+  if (processingOrder) return;
+  setProcessingOrder(true);
 
-    console.log("Procesando pedido con PaymentIntent:", paymentIntent);
+  try {
+    // -------- VALIDACIONES --------
+    if (formData.type === "domicilio" && !formData.line1.trim())
+      throw new Error("Por favor, introduce tu dirección completa.");
+    if (!formData.mobile1.trim())
+      throw new Error("Debes indicar al menos un número de teléfono.");
+    if (!formData.payment_method)
+      throw new Error("Selecciona un método de pago.");
+    if (!user?.id) throw new Error("Debes iniciar sesión.");
+    if (!cartItems.length) throw new Error("Tu carrito está vacío.");
 
-    // Validaciones
-    if (formData.type === "domicilio" && !formData.line1.trim()) {
-      setProcessingOrder(false);
-      return toast.error("Por favor, introduce tu dirección completa.");
-    }
-    if (!formData.mobile1.trim()) {
-      setProcessingOrder(false);
-      return toast.error("Debes indicar al menos un número de teléfono.");
-    }
-    if (!formData.payment_method) {
-      setProcessingOrder(false);
-      return toast.error("Selecciona un método de pago.");
-    }
-    if (!user?.id) {
-      setProcessingOrder(false);
-      return toast.error("Debes iniciar sesión.");
-    }
-    if (!cartItems.length) {
-      setProcessingOrder(false);
-      return toast.error("Tu carrito está vacío.");
-    }
+    // -------- PAYLOAD DEL PEDIDO --------
+    const orderPayload = {
+      payment_method: formData.payment_method,
+      promo_code: couponCode?.trim() || null,
+      line1: formData.line1,
+      line2: formData.line2 || null,
+      city: formData.city || null,
+      zipcode: formData.zipcode || null,
+      country: formData.country || "España",
+      mobile1: formData.mobile1,
+      mobile2: formData.mobile2 || null,
+      type: formData.type,
+      additional_info: formData.additional_info || "",
+      subtotal,
+      discount: discountAmount || 0,
+      transport_fee: transportFee || 0,
+      total: finalTotal,
+      items: cartItems.map((item) => ({
+        product_id: item.product?.id || item.product_id,
+        quantity: item.quantity,
+        price: item.product?.promo_price || item.product?.price || item.price,
+      })),
+      payment_intent: paymentIntent?.id || null,
+    };
 
-    try {
-      // Guardar intento de pedido (payload completo)
-      const orderPayload = {
-        payment_method: formData.payment_method,
-        promo_code: couponCode?.trim() || null,
-        line1: formData.line1,
-        line2: formData.line2 || null,
-        city: formData.city || null,
-        zipcode: formData.zipcode || null,
-        country: formData.country || "España",
-        mobile1: formData.mobile1,
-        mobile2: formData.mobile2 || null,
-        type: formData.type,
-        address_type: formData.address_type || "default",
-        additional_info: formData.additional_info || "",
-        subtotal: subtotal,
-        discount: discountAmount || 0,
-        transport_fee: transportFee || 0,
-        total: finalTotal,
-        items: cartItems.map((item) => ({
-          product_id: item.product?.id || item.product_id,
-          quantity: item.quantity,
-          price: item.product?.promo_price || item.product?.price || item.price,
-        })),
-        payment_intent: paymentIntent?.id || null,
-      };
+    console.log("Payload del pedido:", orderPayload);
 
-      console.log("Payload del pedido:", orderPayload);
+    // -------- LLAMADA AL BACKEND --------
+    const orderRes = await checkoutCart(orderPayload);
+    console.log("Respuesta checkoutCart:", orderRes);
 
-      const orderRes = await checkoutCart(orderPayload);
-      console.log("Respuesta checkoutCart:", orderRes);
+    if (!orderRes?.success) throw new Error(orderRes?.error || "Error al procesar el pedido");
 
-      if (!orderRes?.success) {
-        setProcessingOrder(false);
-        return toast.error(orderRes?.error || "Error al procesar el pedido");
-      }
+    // -------- ÉXITO --------
+    toast.success("✅ Pedido completado correctamente");
+    await clearCart();
+    setOrderPlaced(true);
 
-      toast.success("✅ Pedido completado correctamente");
-      await clearCart();
-      setOrderPlaced(true);
+    setTimeout(() => {
+      navigate("/gracias", { state: { orderCode: orderRes.data?.tracking_number } });
+    }, 1500);
 
-      setTimeout(() => {
-        navigate("/gracias", { state: { orderCode: orderRes.data?.tracking_number } });
-      }, 1500);
-
-    } catch (err) {
-      console.error("❌ Error en el checkout:", err);
-      toast.error("Error inesperado. Inténtalo más tarde.");
-    } finally {
-      setProcessingOrder(false);
-    }
-  };
+  } catch (err) {
+    console.error("❌ Error en el checkout:", err);
+    toast.error(err.message || "Error inesperado. Inténtalo más tarde.");
+  } finally {
+    setProcessingOrder(false);
+  }
+};
 
   // ------------------- Render -------------------
   return (
@@ -351,7 +334,7 @@ const Checkout = () => {
 
           {/* Integración Stripe */}
           {["card", "bizum"].includes(formData.payment_method) && formData.mobile1.trim() ? (
-  <Elements stripe={stripePromise}>
+  
     <PaymentForm
       totalAmount={finalTotal}
       paymentMethod={formData.payment_method}
@@ -361,7 +344,7 @@ const Checkout = () => {
         handleOrder(pi);
       }}
     />
-  </Elements>
+  
 ) : ["card", "bizum"].includes(formData.payment_method) ? (
   <div className="alert alert-warning text-center">
     Introduce tu número de teléfono para continuar con el pago

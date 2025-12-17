@@ -340,13 +340,27 @@ export const checkoutCart = async (data) => {
 // ===============================
 // 🔹 STRIPE PAYMENT INTENT
 // ===============================
-export const createPaymentIntent = (payload) => {
-  console.log("Payload recibido:", payload); // ✅ dentro de la función
-  return handleRequest(
-    api.post("/payments/stripe-intent", payload, {
-      headers: { ...getAuthHeader() },
-    })
-  );
+let intentInProgress = false;
+
+export const createPaymentIntent = async (payload) => {
+  if (intentInProgress) {
+    console.warn("PaymentIntent ya en proceso, evitando duplicado");
+    return;
+  }
+
+  intentInProgress = true;
+
+  console.log("Stripe Intent payload:", payload);
+
+  try {
+    return await handleRequest(
+      api.post("/payments/stripe-intent", payload, {
+        headers: { ...getAuthHeader() },
+      })
+    );
+  } finally {
+    intentInProgress = false;
+  }
 };
 
 

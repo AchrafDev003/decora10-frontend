@@ -1,119 +1,159 @@
-// src/Components/PaymentForm.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
   useStripe,
   useElements,
   CardElement,
-  PaymentElement,
 } from "@stripe/react-stripe-js";
 import { toast } from "react-hot-toast";
-import { createPaymentIntent } from "../services/api"; // Endpoint Laravel
+import { createPaymentIntent } from "../services/api";
 import { useAuth } from "../Context/AuthContext";
 
+/* =====================================================
+   Stripe Promise (FUERA del componente)
+===================================================== */
+const stripePromise = loadStripe(
+  import.meta.env.VITE_STRIPE_PUBLIC_KEY
+);
+
+/* =====================================================
+   CardElement styles
+===================================================== */
 const CARD_ELEMENT_OPTIONS = {
   style: {
     base: {
-      color: "#fff",
-      padding: "10px 12px",
+      color: "#ffffff",
       fontFamily: "Segoe UI, Roboto, sans-serif",
-      fontSmoothing: "antialiased",
       fontSize: "16px",
       "::placeholder": { color: "#a0aec0" },
     },
-    invalid: { color: "#fa755a", iconColor: "#fa755a" },
+    invalid: { color: "#fa755a" },
   },
 };
 
-function PaymentFormInner({ totalAmount, paymentMethod, clientSecret, onSuccess }) {
+/* =====================================================
+   Inner Form
+===================================================== */
+function PaymentFormInner({ orderId, totalAmount, paymentMethod, clientSecret, onSuccess }) {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!stripe || !elements) return toast.error("Stripe no está listo todavía.");
-    if (!clientSecret) return toast.error("Error: clientSecret no disponible.");
+
+    if (!stripe || !elements) {
+      toast.error("Stripe todavía no está listo");
+      return;
+    }
 
     setLoading(true);
+
     try {
       let result;
 
       if (paymentMethod === "card") {
         const card = elements.getElement(CardElement);
-        if (!card) throw new Error("CardElement no está montado.");
-        result = await stripe.confirmCardPayment(clientSecret, { payment_method: { card } });
+
+        if (!card) {
+          throw new Error("CardElement no montado");
+        }
+
+        result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: { card },
+        });
       } else {
-        const paymentElement = elements.getElement(PaymentElement);
-        if (!paymentElement) throw new Error("PaymentElement no está montado.");
-        result = await stripe.confirmPayment({ elements, clientSecret });
+        throw new Error("Método de pago no soportado en frontend");
       }
 
       if (result.error) {
-        console.error("Error Stripe:", result.error);
-        toast.error(result.error.message || "Error al procesar el pago.");
-      } else if (result.paymentIntent?.status === "succeeded") {
-        toast.success("✅ Pago completado correctamente");
-        if (onSuccess) onSuccess(result.paymentIntent);
-      } else {
-        toast("El pago está en proceso, por favor espera.");
+        toast.error(result.error.message);
+        return;
       }
+
+      if (result.paymentIntent?.status === "succeeded") {
+        toast.success("Pago realizado correctamente");
+        onSuccess?.(result.paymentIntent);
+      } else {
+        toast("Pago en proceso…");
+      }
+
     } catch (err) {
-      console.error("Stripe payment error:", err);
-      toast.error("❌ Error al procesar el pago. Inténtalo de nuevo.");
+      console.error(err);
+      toast.error("Error procesando el pago");
     } finally {
       setLoading(false);
     }
   };
 
-  if (!clientSecret) return <p className="text-white">Cargando formulario de pago...</p>;
+  if (!clientSecret) {
+    return <p className="text-white">Inicializando pago…</p>;
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="p-3 bg-dark rounded shadow-lg">
-      {paymentMethod === "card" && <CardElement options={CARD_ELEMENT_OPTIONS} className="mb-3" />}
-      {paymentMethod !== "card" && <PaymentElement className="mb-3" />}
-      <button type="submit" disabled={loading || !stripe || !clientSecret} className="btn btn-primary w-100 py-3 fw-semibold">
-        {loading ? "Procesando..." : `Pagar €${totalAmount.toFixed(2)}`}
+    <form onSubmit={handleSubmit} className="bg-dark p-4 rounded shadow">
+      <div className="mb-3">
+        <CardElement options={CARD_ELEMENT_OPTIONS} />
+      </div>
+
+      <button
+        type="submit"
+        disabled={loading || !stripe}
+        className="btn btn-primary w-100 py-3 fw-semibold"
+      >
+        {loading ? "Procesando…" : `Pagar €${totalAmount.toFixed(2)}`}
       </button>
     </form>
   );
 }
 
-export default function PaymentForm({ totalAmount = 0, paymentMethod = "card", onSuccess }) {
-  const [clientSecret, setClientSecret] = useState(null);
+/* =====================================================
+   Main Component
+===================================================== */
+export default function PaymentForm({
+  orderId,
+  totalAmount,
+  paymentMethod = "card",
+  onSuccess,
+}) {
   const { user } = useAuth();
+  const [clientSecret, setClientSecret] = useState(null);
 
   useEffect(() => {
-    if (!totalAmount || totalAmount <= 0) return;
+    if (!orderId || !user?.id) return;
 
-    const initializePayment = async () => {
+    const initPayment = async () => {
       try {
-        const method = paymentMethod === "bizum" ? "sofort" : paymentMethod;
-
         const { data } = await createPaymentIntent({
-          amount: totalAmount,
-          payment_method: method,
-          user_id: user?.id || 0,
+          order_id: orderId,
+          payment_method: paymentMethod,
+          user_id: user.id,
         });
 
-        if (!data?.clientSecret) throw new Error("No se recibió clientSecret del servidor.");
+        if (!data?.clientSecret) {
+          throw new Error("clientSecret no recibido");
+        }
+
         setClientSecret(data.clientSecret);
       } catch (err) {
-        console.error("Error creando PaymentIntent:", err);
-        toast.error("No se pudo iniciar el pago. Inténtalo de nuevo.");
+        console.error(err);
+        toast.error("No se pudo iniciar el pago");
       }
     };
 
-    initializePayment();
-  }, [totalAmount, paymentMethod, user?.id]);
-
-  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-  console.log("Stripe promise console:", stripePromise);
+    initPayment();
+  }, [orderId, paymentMethod, user?.id]);
 
   return (
-    <Elements stripe={stripePromise} options={clientSecret ? { clientSecret } : {}}>
-      <PaymentFormInner totalAmount={totalAmount} paymentMethod={paymentMethod} clientSecret={clientSecret} onSuccess={onSuccess} />
+    <Elements stripe={stripePromise} options={{ clientSecret }}>
+      <PaymentFormInner
+        orderId={orderId}
+        totalAmount={totalAmount}
+        paymentMethod={paymentMethod}
+        clientSecret={clientSecret}
+        onSuccess={onSuccess}
+      />
     </Elements>
   );
 }
