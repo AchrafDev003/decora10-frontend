@@ -350,19 +350,24 @@ const Checkout = () => {
           </select>
 
           {/* Integración Stripe */}
-          {["card", "bizum"].includes(formData.payment_method) ? (
-            <Elements stripe={stripePromise}>
-              <PaymentForm
-                totalAmount={finalTotal}
-                paymentMethod={formData.payment_method}
-                disabled={processingOrder}
-                onSuccess={(pi) => {
-                  console.log("PaymentForm onSuccess PaymentIntent:", pi);
-                  handleOrder(pi);
-                }}
-              />
-            </Elements>
-          ) : (
+          {["card", "bizum"].includes(formData.payment_method) && formData.mobile1.trim() ? (
+  <Elements stripe={stripePromise}>
+    <PaymentForm
+      totalAmount={finalTotal}
+      paymentMethod={formData.payment_method}
+      disabled={processingOrder}
+      onSuccess={(pi) => {
+        console.log("PaymentForm onSuccess PaymentIntent:", pi);
+        handleOrder(pi);
+      }}
+    />
+  </Elements>
+) : ["card", "bizum"].includes(formData.payment_method) ? (
+  <div className="alert alert-warning text-center">
+    Introduce tu número de teléfono para continuar con el pago
+  </div>
+) : (
+
             <button className="btn btn-neon w-100 py-3 animate__animated animate__pulse animate__infinite" onClick={() => handleOrder(null)} disabled={processingOrder}>
               {processingOrder ? "Procesando..." : "Finalizar Pedido"}
             </button>
