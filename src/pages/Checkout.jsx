@@ -33,6 +33,8 @@ async function geocodePostalCode(postalCode) {
 
 // Clave pública Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+console.log("Stripe promise:", stripePromise)
+
 
 // Posición de la tienda (Avenida Andalucía 8, Alcalá la Real)
 const STORE_POSITION = [37.4602, -3.922740]; // [lat, lng]
@@ -47,10 +49,11 @@ function getDistanceKm(lat1, lon1, lat2, lon2) {
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
   const a =
-    Math.sin(dLat / 2) ** 2 +
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRad(lat1)) *
       Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) ** 2;
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -101,6 +104,7 @@ const Checkout = () => {
       if (!formData.zipcode || formData.zipcode.trim().length < 4) return;
 
       const coords = await geocodePostalCode(formData.zipcode.trim());
+      console.log("Coordenadas obtenidas:", coords);
       if (coords) {
         setUserLocation({
           latitude: coords.latitude,
@@ -121,8 +125,12 @@ const Checkout = () => {
     const options = [];
     if (type === "domicilio") {
       options.push({ value: "card", label: "Tarjeta (card)" });
+      if (String(country).toUpperCase() === "ES") {
+        // options.push({ value: "bizum", label: "Bizum (solo España)" });
+      }
     } else {
       options.push({ value: "cash", label: "Contra reembolso" });
+      // options.push({ value: "bizum", label: "Bizum" });
       options.push({ value: "card", label: "Tarjeta (card)" });
     }
     return options;
@@ -160,6 +168,7 @@ const Checkout = () => {
       const extraKm = Math.ceil(dist - FREE_KM);
       fee += extraKm * EXTRA_PER_KM;
     }
+    console.log("DistanceKm / TransportFee:", dist, fee);
     return { distanceKm: dist, transportFee: fee };
   }, [userLocation]);
 
@@ -179,8 +188,11 @@ const Checkout = () => {
 
     try {
       const res = await validateCoupon(payload);
+      console.log("Respuesta cupón:", res);
+
       if (res.success && res.data.valid) {
         const amount = res.data.type === "percent" ? (subtotal * res.data.discount) / 100 : res.data.discount;
+
         if (subtotal > 99) {
           setDiscountData({ amount, type: res.data.type });
           toast.success(`Código aplicado: ${res.data.type === "percent" ? res.data.discount + "%" : "€" + res.data.discount}`);
@@ -203,6 +215,9 @@ const Checkout = () => {
     if (processingOrder) return;
     setProcessingOrder(true);
 
+    console.log("Procesando pedido con PaymentIntent:", paymentIntent);
+
+    // Validaciones
     if (formData.type === "domicilio" && !formData.line1.trim()) {
       setProcessingOrder(false);
       return toast.error("Por favor, introduce tu dirección completa.");
@@ -225,6 +240,7 @@ const Checkout = () => {
     }
 
     try {
+      // Guardar intento de pedido (payload completo)
       const orderPayload = {
         payment_method: formData.payment_method,
         promo_code: couponCode?.trim() || null,
@@ -250,7 +266,11 @@ const Checkout = () => {
         payment_intent: paymentIntent?.id || null,
       };
 
+      console.log("Payload del pedido:", orderPayload);
+
       const orderRes = await checkoutCart(orderPayload);
+      console.log("Respuesta checkoutCart:", orderRes);
+
       if (!orderRes?.success) {
         setProcessingOrder(false);
         return toast.error(orderRes?.error || "Error al procesar el pedido");
@@ -276,7 +296,9 @@ const Checkout = () => {
   return (
     <div className="checkout-container container my-5">
       {orderPlaced && <Confetti numberOfPieces={400} recycle={false} />}
-      <h2 className="mb-5 text-center fs-4 text-gradient animate__animated animate__fadeInDown">🏁 Checkout</h2>
+      <h2 className="mb-5 text-center fs-4 text-gradient animate__animated animate__fadeInDown">
+        🏁 Checkout
+      </h2>
 
       <div className="row gap-4">
         {/* LEFT: Formulario */}
@@ -334,7 +356,10 @@ const Checkout = () => {
                 totalAmount={finalTotal}
                 paymentMethod={formData.payment_method}
                 disabled={processingOrder}
-                onSuccess={(pi) => handleOrder(pi)}
+                onSuccess={(pi) => {
+                  console.log("PaymentForm onSuccess PaymentIntent:", pi);
+                  handleOrder(pi);
+                }}
               />
             </Elements>
           ) : (
