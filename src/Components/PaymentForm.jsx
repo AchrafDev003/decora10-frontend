@@ -145,6 +145,11 @@ export default function PaymentForm({
     initPayment();
   }, [orderId, paymentMethod, user?.id]);
 
+  // 🔹 Renderizamos solo si clientSecret está disponible
+  if (!clientSecret) {
+    return <p className="text-white">Inicializando pago…</p>;
+  }
+
   return (
     <Elements stripe={stripePromise} options={{ clientSecret }}>
       <PaymentFormInner
