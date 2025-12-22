@@ -210,70 +210,71 @@ const Checkout = () => {
 
   // ------------------- Checkout / Orden -------------------
   // ------------------- Checkout / Orden -------------------
+// En handleOrder
 const handleOrder = async (paymentIntent = null) => {
   if (processingOrder) return;
   setProcessingOrder(true);
 
   try {
-    // -------- VALIDACIONES --------
-    if (formData.type === "domicilio" && !formData.line1.trim())
-      throw new Error("Por favor, introduce tu dirección completa.");
-    if (!formData.mobile1.trim())
-      throw new Error("Debes indicar al menos un número de teléfono.");
-    if (!formData.payment_method)
-      throw new Error("Selecciona un método de pago.");
     if (!user?.id) throw new Error("Debes iniciar sesión.");
     if (!cartItems.length) throw new Error("Tu carrito está vacío.");
+    if (["card","bizum"].includes(formData.payment_method) && !paymentIntent?.id) 
+      throw new Error("El pago no ha sido confirmado.");
 
-    // -------- PAYLOAD DEL PEDIDO --------
+    if (formData.type === "domicilio" && !formData.line1?.trim()) 
+      throw new Error("Introduce tu dirección completa.");
+
+    if (!formData.mobile1?.trim()) throw new Error("Debes indicar al menos un número de teléfono.");
+
+    // Payload para backend
     const orderPayload = {
+      payment_intent: paymentIntent?.id || null,
       payment_method: formData.payment_method,
-      promo_code: couponCode?.trim() || null,
       line1: formData.line1,
       line2: formData.line2 || null,
-      city: formData.city || null,
+      city: formData.city,
       zipcode: formData.zipcode || null,
-      country: formData.country || "España",
+      country: formData.country,
       mobile1: formData.mobile1,
       mobile2: formData.mobile2 || null,
-      type: formData.type,
       additional_info: formData.additional_info || "",
-      subtotal,
-      discount: discountAmount || 0,
-      transport_fee: transportFee || 0,
-      total: finalTotal,
+      type: formData.type,
+      promo_code: couponCode?.trim() || null,
       items: cartItems.map((item) => ({
         product_id: item.product?.id || item.product_id,
         quantity: item.quantity,
-        price: item.product?.promo_price || item.product?.price || item.price,
+        price: Number(item.promo_price ?? item.price),
       })),
-      payment_intent: paymentIntent?.id || null,
+      subtotal: subtotal,
+      discount: discountAmount,
+      transport_fee: transportFee,
+      total: finalTotal,
+      coupon_type: discountData.type,
     };
 
-    console.log("Payload del pedido:", orderPayload);
+    console.log("📦 Checkout payload:", orderPayload);
 
-    // -------- LLAMADA AL BACKEND --------
-    const orderRes = await checkoutCart(orderPayload);
-    console.log("Respuesta checkoutCart:", orderRes);
+    const res = await checkoutCart(orderPayload);
+    if (!res?.success) throw new Error(res?.error || "No se pudo completar el pedido.");
 
-    if (!orderRes?.success) throw new Error(orderRes?.error || "Error al procesar el pedido");
-
-    // -------- ÉXITO --------
-    toast.success("✅ Pedido completado correctamente");
+    toast.success("✅ Pedido confirmado");
     await clearCart();
     setOrderPlaced(true);
 
     setTimeout(() => {
-      navigate("/gracias", { state: { orderCode: orderRes.data?.tracking_number } });
-    }, 1500);
+      navigate("/gracias", {
+        state: { orderCode: res.data?.tracking_number },
+      });
+    }, 1200);
 
   } catch (err) {
-    console.error("❌ Error en el checkout:", err);
+    console.error("❌ Error en handleOrder:", err);
     toast.error(err.message || "Error inesperado. Inténtalo más tarde.");
   } finally {
     setProcessingOrder(false);
   }
 };
+
 
   // ------------------- Render -------------------
   return (

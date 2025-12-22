@@ -62,13 +62,31 @@ function PaymentFormInner({ clientSecret, totalAmount, onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-dark rounded shadow-lg">
-      <PaymentElement className="mb-4" />
+    <form
+      onSubmit={handleSubmit}
+      className="p-4 rounded shadow-lg"
+      style={{ backgroundColor: "#000000", color: "#ffffff" }}
+    >
+      <div style={{ marginBottom: "1rem" }}>
+        <PaymentElement
+          options={{
+            layout: "tabs",
+            defaultValues: { email: "" },
+          }}
+        />
+      </div>
 
       <button
         type="submit"
         disabled={loading || !stripe}
-        className="btn btn-primary w-100 py-3 fw-semibold"
+        className="w-100 py-3 fw-semibold"
+        style={{
+          backgroundColor: "#ff6600",
+          color: "#ffffff",
+          border: "none",
+          borderRadius: "6px",
+          fontSize: "16px",
+        }}
       >
         {loading ? "Procesando..." : `Pagar €${totalAmount.toFixed(2)}`}
       </button>
@@ -121,7 +139,7 @@ export default function PaymentForm({
   }, [totalAmount, paymentMethod, user?.id]);
 
   if (!clientSecret) {
-    return <p className="text-white">Inicializando pago...</p>;
+    return <p style={{ color: "#ffffff" }}>Inicializando pago...</p>;
   }
 
   return (
@@ -132,6 +150,13 @@ export default function PaymentForm({
         appearance: {
           theme: "night",
           labels: "floating",
+          variables: {
+            colorPrimary: "#ff6600",
+            colorBackground: "#000000",
+            colorText: "#ffffff",
+            colorDanger: "#ff3300",
+            fontFamily: "Arial, Helvetica, sans-serif",
+          },
         },
       }}
     >

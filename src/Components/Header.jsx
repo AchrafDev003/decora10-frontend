@@ -73,7 +73,7 @@ const debouncedSearch = useDebounce(searchTerm, 350);
 
   useEffect(() => {
   const fetchQuick = async () => {
-    if (debouncedSearch.trim().length < 2) return;
+    if (debouncedSearch.trim().length < 4) return;
 
     setQuickLoading(true);
     const { success, data } = await quickSearch(debouncedSearch.trim());

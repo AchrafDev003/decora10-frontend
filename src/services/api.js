@@ -345,7 +345,7 @@ let intentInProgress = false;
 export const createPaymentIntent = async (payload) => {
   if (intentInProgress) {
     console.warn("PaymentIntent ya en proceso, evitando duplicado");
-    return;
+    return { success: false, error: "PaymentIntent en progreso" };
   }
 
   intentInProgress = true;
@@ -353,16 +353,36 @@ export const createPaymentIntent = async (payload) => {
   console.log("Stripe Intent payload:", payload);
 
   try {
-    return await handleRequest(
+    const response = await handleRequest(
       api.post("/payments/stripe-intent", payload, {
         headers: { ...getAuthHeader() },
       })
     );
+
+    console.log("Stripe Intent response:", response);
+
+    // Validar clientSecret
+    if (!response?.data?.clientSecret) {
+      return {
+        success: false,
+        error: response?.error || "Stripe no devolvió clientSecret",
+        data: null,
+      };
+    }
+
+    return response;
+
+  } catch (err) {
+    console.error("Error creando PaymentIntent:", err);
+    return {
+      success: false,
+      error: err?.message || "Error desconocido al crear PaymentIntent",
+      data: null,
+    };
   } finally {
     intentInProgress = false;
   }
 };
-
 
 
 

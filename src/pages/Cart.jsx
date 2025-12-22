@@ -159,7 +159,7 @@ const Cart = () => {
                 }}
                 onClick={handleCheckout}
               >
-                Proceder a Checkout
+                Proceder al pago
               </button>
             </div>
           </div>
