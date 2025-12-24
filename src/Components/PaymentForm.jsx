@@ -13,7 +13,7 @@ import { useAuth } from "../Context/AuthContext";
 
 /* Stripe promise (fuera del render) */
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-console.log("Stripe Public Key:", import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
 
 
 
