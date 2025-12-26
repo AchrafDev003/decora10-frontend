@@ -11,10 +11,10 @@ import { toast } from "react-hot-toast";
 import { createPaymentIntent } from "../services/api";
 import { useAuth } from "../Context/AuthContext";
 
-/* Stripe promise (fuera del render) */
+/* Stripe promise correct (fuera del render) */
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-console.log("Stripe public key:", import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
+console.log("ok");
 
 
 /* ============================

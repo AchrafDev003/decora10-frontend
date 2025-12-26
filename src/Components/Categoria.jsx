@@ -11,7 +11,7 @@ export default function Categoria() {
       try {
         const res = await getCategories();
         if (res.success) setCategories(res.data);
-        console.log(res.data);
+        
       } catch (err) {
         console.error("Error cargando categorías:", err);
       }
