@@ -40,6 +40,19 @@ export default function ProductDetail() {
   // Medidas de Colchonería
   const MEASURE_ADJUST = { "90x190": -100, "135x190": 0, "150x190": 80 };
   const [selectedMeasure, setSelectedMeasure] = useState("135x190");
+  const [isMobile, setIsMobile] = useState(false);
+
+useEffect(() => {
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768); // Bootstrap md breakpoint
+  };
+
+  checkMobile();
+  window.addEventListener("resize", checkMobile);
+  return () => window.removeEventListener("resize", checkMobile);
+}, []);
+
+  
 
   // Fetch producto y reviews
   useEffect(() => {
@@ -201,15 +214,25 @@ export default function ProductDetail() {
         <div className="row g-4 align-items-start flex-column flex-md-row">
           {/* Imagen */}
           <div className="col-12 col-md-7 col-lg-6 text-center">
-            <div className="p-3 rounded shadow-lg bg-white">
+            <div className="p-3 rounded shadow-lg  img-fluid h-300 d-flex justify-content-center align-items-center">
               {producto.images?.length ? (
                 <div id={`carousel-product-${producto.id}`} className="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
-                  <div className="carousel-inner">
+                  <div className="carousel-inner img-fluid justify-content-center align-items-center ">
                     {producto.images.map((img, idx) => {
                       const url = getImageUrl(img.image_path) || "/images/placeholder.png";
                       return (
                         <div key={idx} className={`carousel-item ${idx === 0 ? "active" : ""}`}>
-                          <ImageZoom src={url} alt={producto.name} zoom={2.5} size={250} />
+                          {isMobile ? (
+  <img
+    src={url}
+    alt={producto.name}
+    className="rounded"
+    style={{ maxHeight: "340px",width:"290px",objectFit: "fill" }}
+  />
+) : (
+  <ImageZoom src={url} alt={producto.name} zoom={2.5} size={250} />
+)}
+
                         </div>
                       );
                     })}
@@ -320,7 +343,7 @@ export default function ProductDetail() {
             {/* Botones */}
             <div className="d-flex flex-column flex-sm-row gap-3 mt-3 justify-content-center justify-content-md-start">
               <button
-                className="btn btn-success px-4 py-2 fw-bold"
+                className="btn btn-success text-white px-4 py-2 fw-bold fs-4"
                 style={{ borderRadius: "10px" }}
                 onClick={() => handleAddToCart(producto)}
               >
@@ -398,7 +421,7 @@ export default function ProductDetail() {
     <div
       className="d-flex overflow-auto gap-3 related-scrollbar pb-2"
       style={{
-        backgroundColor: "#fff",
+        
         borderRadius: "12px",
         scrollBehavior: "smooth",
         WebkitOverflowScrolling: "touch",
@@ -454,7 +477,7 @@ export default function ProductDetail() {
       className="position-absolute top-0 start-0 h-100"
       style={{
         width: "50px",
-        background: "linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0))",
+        background: "linear-gradient(to right, rgba(195, 197, 173, 0.89), rgba(255,255,255,0))",
         zIndex: 3,
         pointerEvents: "none",
       }}

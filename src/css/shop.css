@@ -57,9 +57,9 @@ html {
 }
 
 .img-wrapper .carousel-item img {
-  width: 100%;
-  height: 233px; /* igual que tu contenedor */
-  object-fit: cover;
+  width: 95%;
+  height: 226px; /* igual que tu contenedor */
+  object-fit: content;
   object-position: center 70%;
   transition: transform 0.4s ease;
 }
@@ -120,6 +120,13 @@ html {
   .categories-wrapper {
     grid-template-columns: repeat(2, 1fr);
   }
+  .img-wrapper .carousel-item img {
+  width: 90%;
+  height: 216px; /* igual que tu contenedor */
+  object-fit: cover;
+  object-position: center 70%;
+  transition: transform 0.4s ease;
+}
 }
 
 /* Tablet: 3 columnas */
@@ -184,7 +191,7 @@ html {
   color: #333;
   font-weight: 600;
   border-radius: 12px;
-  margin: 0 4px;
+  margin: 4px 8px;
   min-width: 45px;
   min-height: 45px;
   display: flex;
@@ -196,14 +203,14 @@ html {
 }
 
 .pagination-modern .page-item .page-link:hover {
-  background-color: #28a745;
+  background-color: var(--bs-brown);
   color: #fff;
   transform: scale(1.05);
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 .pagination-modern .page-item.active .page-link {
-  background-color: #28a745;
+  background-color: var(--bs-brown);
   color: #fff;
   box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
