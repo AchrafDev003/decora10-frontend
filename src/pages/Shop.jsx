@@ -102,51 +102,45 @@ export default function Shop() {
   // Cargar productos según categoría / búsqueda / paginación
   // -------------------------------
   const fetchProductos = async (page = 1, category = "") => {
-    if (loading) return;
-    setLoading(true);
+  if (loading) return;
+  setLoading(true);
 
-    try {
-      let res;
-      const params = {
-        page,
-        search: searchTerm || "",
-        sort: sortOption || "",
-        ...(category && { category_id: category }),
-      };
+  try {
+    let res;
+    const params = {
+      page,
+      search: searchTerm || "",
+      sort: sortOption || "",
+      ...(category && { category_id: category }),
+    };
 
-      if (!category && !searchTerm && !sortOption) {
-        // Entrada desde header → productos generales
-        res = await getFeaturedProductsByCategory2({ page });
-      } else if (category === "76") {
-        // Colchonería → endpoint especial
-        res = await getColchoneriaHighlights2({ page });
-      } else {
-        // Búsqueda o filtro por categoría
-        res = await getProductsFiltrados(params);
-      }
-
-      
-      if (res?.success) {
-  const productosData = Array.isArray(res.data.data)
-  ? res.data.data
-  : Object.values(res.data.data);
-
-setProductos(productosData);
-setCurrentPage(Number(res.data.current_page) || 1);
-setLastPage(Number(res.data.last_page) || 1);
-
-}
- else {
-        setProductos([]);
-        toast.error("No se pudieron cargar productos");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Error al cargar productos");
-    } finally {
-      setLoading(false);
+    if (!category && !searchTerm && !sortOption) {
+      res = await getFeaturedProductsByCategory2({ page });
+    } else if (category === "76") {
+      res = await getColchoneriaHighlights2({ page });
+    } else {
+      res = await getProductsFiltrados(params);
     }
-  };
+
+    // 🔥 NUEVA LÓGICA (Laravel paginator)
+    const response = res?.data;
+
+    if (response?.data && response?.meta) {
+      setProductos(response.data);
+      setCurrentPage(response.meta.current_page);
+      setLastPage(response.meta.last_page);
+    } else {
+      setProductos([]);
+      setCurrentPage(1);
+      setLastPage(1);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Error al cargar productos");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // -------------------------------
   // Detectar categoría desde URL
