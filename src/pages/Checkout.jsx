@@ -6,6 +6,7 @@ import Confetti from "react-confetti";
 import { checkoutCart, validateCoupon } from "../services/api";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../Context/AuthContext";
+import { Link } from "react-router-dom";
 
 
 import PaymentForm from "../Components/PaymentForm";
@@ -29,31 +30,54 @@ async function geocodePostalCode(postalCode) {
     return null;
   }
 }
+/* ================================
+   LOGÍSTICA
+================================ */
+const getCartLogisticType = (items) => {
+  if (items.some(i => i.logistic_type === "heavy")) return "heavy";
+  if (items.some(i => i.logistic_type === "medium")) return "medium";
+  return "small";
+};
 
-// Clave pública Stripe
 
+const calculateTransportFee = ({ distanceKm, logisticType, subtotal }) => {
+  if (!distanceKm || distanceKm <= 20) return 0;
 
+  switch (logisticType) {
+    case "small":
+      return 9.8;
 
-// Posición de la tienda (Avenida Andalucía 8, Alcalá la Real)
-const STORE_POSITION = [37.4602, -3.922740]; // [lat, lng]
-const FREE_KM = 10; // km gratis
-const EXTRA_PER_KM = 0.10; // € por km adicional
-const transporte = 10; // Base transporte
+    case "medium":
+      if (subtotal < 100) return 18.5;
+      if (subtotal < 150) return 24.5;
+      return 27.5;
 
-// Haversine: distancia en km
+    case "heavy":
+      return 50;
+
+    default:
+      return 0;
+  }
+};
+
+/* ================================
+   DISTANCIA (HAVERSINE)
+================================ */
+const STORE_POSITION = [37.4602, -3.92274];
+
 function getDistanceKm(lat1, lon1, lat2, lon2) {
   const toRad = (v) => (v * Math.PI) / 180;
-  const R = 6371; // km
+  const R = 6371;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
+
   const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLat / 2) ** 2 +
     Math.cos(toRad(lat1)) *
       Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+      Math.sin(dLon / 2) ** 2;
+
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 const Checkout = () => {
@@ -153,22 +177,35 @@ const Checkout = () => {
   const subtotalAfterDiscount = useMemo(() => Math.max(subtotal - discountAmount, 0), [subtotal, discountAmount]);
 
   // ------------------- Transporte según distancia -------------------
-  const { distanceKm, transportFee } = useMemo(() => {
-    if (!userLocation) return { distanceKm: null, transportFee: 0 };
+   /* ================================
+     TRANSPORTE
+  ================================ */
+  const { distanceKm, transportFee, cartLogisticType } = useMemo(() => {
+    if (!userLocation) {
+      return { distanceKm: null, transportFee: 0, cartLogisticType: "small" };
+    }
+
     const dist = getDistanceKm(
-      Number(userLocation.latitude),
-      Number(userLocation.longitude),
+      userLocation.latitude,
+      userLocation.longitude,
       STORE_POSITION[0],
       STORE_POSITION[1]
     );
-    let fee = transporte;
-    if (dist > FREE_KM) {
-      const extraKm = Math.ceil(dist - FREE_KM);
-      fee += extraKm * EXTRA_PER_KM;
-    }
-    console.log("DistanceKm / TransportFee:", dist, fee);
-    return { distanceKm: dist, transportFee: fee };
-  }, [userLocation]);
+      console.log("cartenItems:", cartItems);
+    const logisticType = getCartLogisticType(cartItems);
+
+    const fee = calculateTransportFee({
+      distanceKm: dist,
+      logisticType,
+      subtotal: subtotalAfterDiscount,
+    });
+
+    return {
+      distanceKm: dist,
+      transportFee: fee,
+      cartLogisticType: logisticType,
+    };
+  }, [userLocation, cartItems, subtotalAfterDiscount]);
 
   // ------------------- Total final -------------------
   const finalTotal = useMemo(() => Number(subtotalAfterDiscount) + Number(transportFee || 0), [subtotalAfterDiscount, transportFee]);
@@ -397,11 +434,7 @@ const handleOrder = async (paymentIntent = null) => {
             <small className="fw-semibold">€{(transportFee || 0).toFixed(2)}</small>
           </div>
 
-          {distanceKm !== null && (
-            <div className="text-end small text-muted mb-2">
-              Distancia a tienda: {distanceKm.toFixed(1)} km {distanceKm > FREE_KM ? `(+€${transportFee.toFixed(2)})` : "(gratis hasta 10 km)"}
-            </div>
-          )}
+          
 
           <hr className="border-secondary my-2" />
           <h5 className="text-end fw-bold text-gradient mb-3">Total: €{finalTotal.toFixed(2)}</h5>
@@ -415,16 +448,23 @@ const handleOrder = async (paymentIntent = null) => {
 
           <div className="d-flex align-items-center gap-2 mb-2">
             <span role="img" aria-label="Transporte" className="fs-4">🚚</span>
-            <p className="mb-0 text-muted">
-              Transporte y montaje: <strong>€{transporte.toFixed(2)}</strong> dentro de {FREE_KM} km de nuestra tienda en <em>Avenida Andalucía 8, Alcalá la Real</em>. 
-              <span title="Cada km extra se cobra 0.5€ adicional"> Cada km adicional +€{EXTRA_PER_KM.toFixed(2)}</span>
-            </p>
+            <p className="text-muted small">
+  Logística: <strong>{cartLogisticType}</strong>
+</p>
+<p className="text-muted small">
+  Transporte: <strong>{transportFee.toFixed(2)} €</strong>
+</p>
+
           </div>
 
           <div className="d-flex align-items-center gap-2 mb-3">
-            <span role="img" aria-label="Devoluciones" className="fs-4">🔄</span>
-            <p className="mb-0 text-muted"><a href="/politica-devoluciones" className="text-decoration-none">Política de devoluciones</a></p>
-          </div>
+  <span role="img" aria-label="Devoluciones" className="fs-4">🔄</span>
+  <p className="mb-0 text-muted">
+    <Link to="/politica-devoluciones" className="text-decoration-none">
+      Política de devoluciones
+    </Link>
+  </p>
+</div>
 
           <div className="d-flex gap-2 flex-wrap mt-3">
             <span className="badge bg-success py-2 px-3 shadow-sm">Pago 100% seguro</span>

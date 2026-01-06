@@ -1,10 +1,21 @@
 import React, { Suspense, lazy, useEffect } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation,Link} from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { Toaster } from "react-hot-toast"; // ✅ Añadido
 import { trackPage } from "./Hooks/useAnalytics.js";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+
+<div className="d-flex align-items-center gap-2 mb-3">
+  <span role="img" aria-label="Devoluciones" className="fs-4">🔄</span>
+  <p className="mb-0 text-muted">
+    <Link to="/politica-devoluciones" className="text-decoration-none">
+      Política de devoluciones
+    </Link>
+  </p>
+</div>
+
 
 
 // src/main.jsx o index.jsx
@@ -16,6 +27,7 @@ import Header from "./Components/Header.jsx";
 import Footer from "./Components/Footer.jsx";
 import ProtectedRoute from "./Components/ProtectedRoute.jsx";
 import CookieConsent from "./Components/CookieConsent.jsx";
+
 
 // Lazy loading de páginas
 const Home = lazy(() => import("./pages/Home.jsx"));
@@ -31,6 +43,7 @@ const ColchoneriaPage = lazy(() => import("./pages/ColchoneriaPage.jsx"));
 const Contact = lazy(() => import("./pages/Contact.jsx"));
 const Privacy = lazy(() => import("./pages/PrivacyPolicy.jsx"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail.jsx"));
+const PoliticaDevoluciones = lazy(() => import("./pages/PoliticaDevoluciones.jsx"));
 
 
 function AppContent() {
@@ -81,6 +94,7 @@ function AppContent() {
           <Route path="/gracias" element={<Gracias />} />
           <Route path="/politica-privacidad" element={<Privacy />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/politica-devoluciones" element={<PoliticaDevoluciones />} />
           
 
 <Route path="/colchoneria" element={<ColchoneriaPage />} />

@@ -8,7 +8,7 @@ const PLACEHOLDER_IMG = "/images/placeholder.png";
 export default function QuickSearchModal({ show, onClose, results, loading }) {
   const [showAll, setShowAll] = useState(false);
   if (!results) results = [];
-  const displayedResults = showAll ? results : results.slice(0, 5);
+  const displayedResults = showAll ? results : results.slice(0, 8);
 
   return (
     <Modal
@@ -97,7 +97,7 @@ export default function QuickSearchModal({ show, onClose, results, loading }) {
               ))}
             </div>
 
-            {results.length > 5 && !showAll && (
+            {results.length > 8 && !showAll && (
               <div className="text-center mt-3">
                 <button
                   className="btn btn-outline-warning btn-sm"

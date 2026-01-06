@@ -340,7 +340,7 @@ export default function Shop() {
                         <div key={img.id} className={`carousel-item ${idx === 0 ? "active" : ""}`}>
                           <img
                             src={getImageUrl(img.image_path) || PLACEHOLDER_IMG}
-                            className="d-block w-100 img-fluid "
+                            className="d-block w-100 "
                             alt={producto.name}
                             onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
                           />
