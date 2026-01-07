@@ -1,46 +1,88 @@
+/* =====================================================
+   VARIABLES GLOBALES
+===================================================== */
 :root {
   --bs-rose: #ddb4a9;
   --bs-brown: #522020;
   --bs-black: #000;
 }
-/* src/css/ProductDetail.css o global */
+
+/* =====================================================
+   CAROUSEL CONTROLS (CUSTOM ARROWS)
+===================================================== */
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
-  background-image: none; /* eliminamos la imagen por defecto */
-  border: solid rgb(145, 26, 26);    /* creamos flechas con border */
+  background-image: none; /* elimina iconos Bootstrap */
+  border: solid var(--bs-black);
   border-width: 0 3px 3px 0;
   display: inline-block;
-  padding: 10px;
-  transform: rotate(135deg); /* para prev */
-}
-
-.carousel-control-next-icon {
-  transform: rotate(-45deg); /* para next */
-}
-
-/* Ajusta tamaño y color */
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
   width: 30px;
   height: 30px;
-  border-color: black; /* color de la flecha */
+  padding: 6px;
 }
+
+.carousel-control-prev-icon {
+  transform: rotate(135deg);
+}
+
+.carousel-control-next-icon {
+  transform: rotate(-45deg);
+}
+
+/* =====================================================
+   PRODUCT IMAGE (WRAPPER + IMAGE)
+===================================================== */
+.product-image-wrapper {
+  width: 100%;
+  height: 400px;
+  background: linear-gradient(135deg, #bfa800 0%, #e9ecef 100%);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image {
+  width: 450px;
+  border-radius: 14px;
+  height: 370px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image img {
+  max-width: 400px;
+  max-height: 350px;
+  border-radius: 14px;
+  object-fit: contain;
+}
+
+/* =====================================================
+   PRODUCT DESCRIPTION (READ MORE)
+===================================================== */
 .product-description {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 4;
   overflow: hidden;
   text-overflow: ellipsis;
-  word-break: break-word; /* evita que una palabra larga rompa el diseño */
+  word-break: break-word;
 }
 
 .product-description.expanded {
   -webkit-line-clamp: unset;
   overflow: visible;
 }
+
+/* =====================================================
+   RELATED PRODUCTS (CARDS + HOVER)
+===================================================== */
 .related-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .related-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
@@ -53,24 +95,27 @@
 .related-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.25);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.related-card:hover .related-overlay {
+.related-img-wrapper:hover .related-overlay {
   opacity: 1;
 }
-/* Scroll tipo Apple Music */
+
+/* =====================================================
+   RELATED PRODUCTS SCROLL (APPLE MUSIC STYLE)
+===================================================== */
 .related-scrollbar {
   display: flex;
-  overflow-x: auto;
   gap: 1rem;
+  overflow-x: auto;
   padding-bottom: 0.5rem;
   scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   scrollbar-width: thin;
   scrollbar-color: #c1a200 #f0e9da;
-  scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   transition: all 0.3s ease;
 }
@@ -78,33 +123,47 @@
 .related-scrollbar::-webkit-scrollbar {
   height: 10px;
 }
+
 .related-scrollbar::-webkit-scrollbar-track {
   background: linear-gradient(90deg, #f8f8f8, #f0e9da);
   border-radius: 10px;
 }
+
 .related-scrollbar::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, #d6d31b, #bca100);
   border-radius: 10px;
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
+
 .related-scrollbar::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #bfa800, #a88f00);
   transform: scale(1.05);
 }
 
-/* Efecto overlay suave */
-.related-img-wrapper {
-  position: relative;
+.product-image-wrapper {
+  cursor: zoom-in; /* Indica que se puede ampliar */
+  transition: transform 0.2s ease;
 }
-.related-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.25);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+
+.product-image-wrapper:hover {
+  transform: scale(1.02);
+  cursor: zoom-in;
 }
-.related-img-wrapper:hover .related-overlay {
-  opacity: 1;
+
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+@media (max-width: 768px) {
+  .product-image-wrapper {
+    height: 300px;
+  }
+
+  .product-image {
+    max-width: 330px;
+    height: 290px;
+  }
 }
 

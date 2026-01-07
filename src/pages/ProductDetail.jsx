@@ -36,6 +36,9 @@ export default function ProductDetail() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [relatedProductsByWord, setRelatedProductsByWord] = useState([]);
+  const [showImageModal, setShowImageModal] = useState(false);
+const [activeImageIndex, setActiveImageIndex] = useState(0);
+
 
   // Medidas de Colchonería
   const MEASURE_ADJUST = { "90x190": -100, "135x190": 0, "150x190": 80 };
@@ -116,6 +119,23 @@ useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("favoritos") || "[]");
     setFavoritos(saved);
   }, []);
+
+  // Modal imagenes
+  useEffect(() => {
+  if (showImageModal) {
+    // Bloquea el scroll
+    document.body.style.overflow = "hidden";
+  } else {
+    // Restaura el scroll
+    document.body.style.overflow = "auto";
+  }
+
+  // Limpieza al desmontar
+  return () => {
+    document.body.style.overflow = "auto";
+  };
+}, [showImageModal]);
+
 
   useEffect(() => {
     localStorage.setItem("favoritos", JSON.stringify(favoritos));
@@ -210,154 +230,163 @@ useEffect(() => {
     <section className="py-5" style={{ background: "linear-gradient(135deg, #d6d31bff, #eef3ee)", minHeight: "100vh" }}>
       <ToastContainer />
       <div className="container-md">
-        {/* Imagen + Info */}
-        <div className="row g-4 align-items-start flex-column flex-md-row">
-          {/* Imagen */}
-          <div className="col-12 col-md-7 col-lg-6 text-center">
-            <div className="p-3 rounded shadow-lg  img-fluid h-300 d-flex justify-content-center align-items-center">
-              {producto.images?.length ? (
-                <div id={`carousel-product-${producto.id}`} className="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
-                  <div className="carousel-inner img-fluid justify-content-center align-items-center ">
-                    {producto.images.map((img, idx) => {
-                      const url = getImageUrl(img.image_path) || "/images/placeholder.png";
-                      return (
-                        <div key={idx} className={`carousel-item ${idx === 0 ? "active" : ""}`}>
-                          {isMobile ? (
-  <img
-    src={url}
-    alt={producto.name}
-    className="rounded"
-    style={{ maxHeight: "340px",width:"290px",objectFit: "fill" }}
-  />
-) : (
-  <ImageZoom src={url} alt={producto.name} zoom={2.5} size={250} />
-)}
+      {/* Imagen + Info */}
+<div className="row g-4 align-items-start flex-column flex-md-row">
 
-                        </div>
-                      );
-                    })}
+  {/* Imagen */}
+  <div className="col-12 col-md-7 col-lg-6 text-center">
+    <div className="product-image-wrapper cursor-pointer" onClick={() => {
+    setActiveImageIndex(idx);
+    setShowImageModal(true);
+  }}>
+
+      {producto.images?.length ? (
+        <div
+          id={`carousel-product-${producto.id}`}
+          className="carousel slide w-100 h-100"
+          data-bs-ride="carousel"
+          data-bs-interval="3000"
+        >
+          <div className="carousel-inner h-100">
+
+            {producto.images.map((img, idx) => {
+              const url = getImageUrl(img.image_path) || "/images/placeholder.png";
+
+              return (
+                <div
+                  key={idx}
+                  className={`carousel-item h-100 ${idx === 0 ? "active" : ""}`}
+                >
+                  <div className="d-flex justify-content-center align-items-center h-100">
+
+                    {isMobile ? (
+                       <img
+                    src={url}
+                    alt={producto.name}
+                    className="product-image"
+                    onClick={() => {
+                      setActiveImageIndex(idx);
+                      setShowImageModal(true);
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="product-image"
+                    onClick={() => {
+                      setActiveImageIndex(idx);
+                      setShowImageModal(true);
+                    }}
+                  >
+                    <ImageZoom
+                      src={url}
+                      alt={producto.name}
+                      zoom={2.5}
+                      size={300}
+                    />
+                      </div>
+                    )}
+
                   </div>
-
-                  {producto.images.length > 1 && (
-                    <>
-                       {/* Botones prev/next */}
-  <button
-    className="carousel-control-prev"
-    type="button"
-    data-bs-target={`#carousel-product-${producto.id}`}
-    data-bs-slide="prev"
-  >
-    <span
-      className="carousel-control-prev-icon"
-      aria-hidden="true"
-      style={{
-        filter: "invert(0%)", // negro
-        width: "40px",
-        height: "40px",
-        borderRadius: "75%",
-        backgroundColor: "Orange",
-        padding: "5px",
-      }}
-    ></span>
-    <span className="visually-hidden">Previous</span>
-  </button>
-
-  <button
-    className="carousel-control-next"
-    type="button"
-    data-bs-target={`#carousel-product-${producto.id}`}
-    data-bs-slide="next"
-  >
-    <span
-      className="carousel-control-next-icon"
-      aria-hidden="true"
-      style={{
-        filter: "invert(0%)",
-        width: "40px",
-        height: "40px",
-        borderRadius: "50%",
-        backgroundColor: "Orange",
-        padding: "10px",
-      }}
-    ></span>
-    <span className="visually-hidden">Next</span>
-  </button>
-                    </>
-                  )}
                 </div>
-              ) : (
-                <ImageZoom src={producto.image || "/images/placeholder.png"} alt={producto.name} zoom={2.5} size={250} />
-              )}
-            </div>
+              );
+            })}
           </div>
 
-          {/* Info */}
-          <div className="col-12 col-md-5 col-lg-6 text-center text-md-start">
-            <h2 className="fw-bold mb-3 text-dark">{producto.name}</h2>
-
-            {/* Precio */}
-            <div className="mb-3">
-              {producto.promo_price ? (
-                <>
-                  <span className="text-muted text-decoration-line-through me-2">€{(producto.price ?? 0).toFixed(2)}</span>
-                  <span className="fw-bold text-success fs-4">€{finalPrice.toFixed(2)}</span>
-                </>
-              ) : (
-                <span className="fw-bold fs-4">€{finalPrice.toFixed(2)}</span>
-              )}
-            </div>
-
-            <p className={`product-description ${showFullDesc ? "expanded" : ""} text-muted mb-2`}>
-              {producto.description || "Sin descripción."}
-            </p>
-            {producto.description && producto.description.length > 200 && (
-              <button className="btn btn-link p-0 text-decoration-none text-success fw-bold"
-                onClick={() => setShowFullDesc(!showFullDesc)}>
-                {showFullDesc ? "Leer menos" : "Leer más"}
-              </button>
-            )}
-
-            <p className="mb-2"><strong>Categoría:</strong> {producto.category?.name || "N/A"}</p>
-
-            {/* Colchonería medidas */}
-            {producto.category?.id === 76 && (
-              <div className="mb-3">
-                <h6 className="fw-bold">Opciones de medida</h6>
-                <div className="d-flex gap-2 flex-wrap">
-                  {Object.keys(MEASURE_ADJUST).map((m) => {
-                    const priceAdjusted = (producto.promo_price ?? producto.price ?? 0) + MEASURE_ADJUST[m];
-                    return (
-                      <button
-                        key={m}
-                        className={`btn btn-sm ${selectedMeasure === m ? "btn-primary" : "btn-outline-primary"}`}
-                        onClick={() => setSelectedMeasure(m)}
-                      >
-                        {m} (€{priceAdjusted.toFixed(2)})
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Botones */}
-            <div className="d-flex flex-column flex-sm-row gap-3 mt-3 justify-content-center justify-content-md-start">
+          {producto.images.length > 1 && (
+            <>
               <button
-                className="btn btn-success text-white px-4 py-2 fw-bold fs-4"
-                style={{ borderRadius: "10px" }}
-                onClick={() => handleAddToCart(producto)}
+                className="carousel-control-prev"
+                type="button"
+                data-bs-target={`#carousel-product-${producto.id}`}
+                data-bs-slide="prev"
               >
-                🛒 Añadir al carrito
+                <span className="carousel-control-prev-icon custom-carousel-btn" />
+                <span className="visually-hidden">Previous</span>
               </button>
+
               <button
-                className={`btn ${favoritos.includes(producto.id) ? "btn-danger" : "btn-outline-danger"} fw-bold`}
-                onClick={() => toggleFavorito(producto.id)}
+                className="carousel-control-next"
+                type="button"
+                data-bs-target={`#carousel-product-${producto.id}`}
+                data-bs-slide="next"
               >
-                ❤️ {favoritos.includes(producto.id) ? "Quitar" : "Favorito"}
+                <span className="carousel-control-next-icon custom-carousel-btn" />
+                <span className="visually-hidden">Next</span>
               </button>
-            </div>
-          </div>
+            </>
+          )}
         </div>
+      ) : (
+        <div className="product-image">
+          <ImageZoom
+            src={producto.image || "/images/placeholder.png"}
+            alt={producto.name}
+            zoom={2.5}
+            size={300}
+          />
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Info */}
+  <div className="col-12 col-md-5 col-lg-6 text-center text-md-start">
+    <h2 className="fw-bold mb-3 text-dark">{producto.name}</h2>
+
+    <div className="mb-3">
+      {producto.promo_price ? (
+        <>
+          <span className="text-muted text-decoration-line-through me-2">
+            €{(producto.price ?? 0).toFixed(2)}
+          </span>
+          <span className="fw-bold text-success fs-4">
+            €{finalPrice.toFixed(2)}
+          </span>
+        </>
+      ) : (
+        <span className="fw-bold fs-4">€{finalPrice.toFixed(2)}</span>
+      )}
+    </div>
+
+    <p className={`product-description ${showFullDesc ? "expanded" : ""} text-muted`}>
+      {producto.description || "Sin descripción."}
+    </p>
+
+    {producto.description?.length > 200 && (
+      <button
+        className="btn btn-link p-0 text-success fw-bold"
+        onClick={() => setShowFullDesc(!showFullDesc)}
+      >
+        {showFullDesc ? "Leer menos" : "Leer más"}
+      </button>
+    )}
+
+    <p className="mt-2">
+      <strong>Categoría:</strong> {producto.category?.name || "N/A"}
+    </p>
+
+    <div className="d-flex flex-column flex-sm-row gap-3 mt-4">
+      <button
+        className="btn btn-success fw-bold fs-5"
+        onClick={() => handleAddToCart(producto)}
+      >
+        🛒 Añadir al carrito
+      </button>
+
+      <button
+        className={`btn ${
+          favoritos.includes(producto.id)
+            ? "btn-danger"
+            : "btn-outline-danger"
+        } fw-bold`}
+        onClick={() => toggleFavorito(producto.id)}
+      >
+        ❤️ {favoritos.includes(producto.id) ? "Quitar" : "Favorito"}
+      </button>
+    </div>
+  </div>
+</div>
+
 
         {/* Reseñas */}
         <div className="mt-5">
@@ -586,6 +615,91 @@ useEffect(() => {
 
       {/* Modal de login */}
       {showLoginModal && <LoginModal show={showLoginModal} onClose={() => setShowLoginModal(false)} />}
+        {showImageModal && (
+  <div
+    className="modal fade show d-flex"
+    tabIndex="1"
+    style={{
+      position: "fixed",
+      inset: 0,
+      backgroundColor: "rgba(0,0,0,0.85)",
+      zIndex: 1050,
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+    onClick={() => setShowImageModal(false)}
+  >
+    <div
+      className="modal-dialog modal-xl"
+      onClick={(e) => e.stopPropagation()}
+      style={{ margin: 0 }}
+    >
+      <div className="modal-content bg-transparent border-0">
+
+        <button
+          type="button"
+          className="btn-close btn-close-white ms-auto mb-2"
+          onClick={() => setShowImageModal(false)}
+        />
+
+        <div
+          id="modalCarousel"
+          className="carousel slide"
+          data-bs-ride="false"
+        >
+          <div className="carousel-inner">
+            {producto.images.map((img, i) => {
+              const url = getImageUrl(img.image_path);
+              return (
+                <div
+                  key={i}
+                  className={`carousel-item ${
+                    i === activeImageIndex ? "active" : ""
+                  }`}
+                >
+                  <img
+                    src={url}
+                    alt={producto.name}
+                    className="d-block mx-auto"
+                    style={{
+                      maxHeight: "80vh",
+                      maxWidth: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+
+          {producto.images.length > 1 && (
+            <>
+              <button
+                className="carousel-control-prev"
+                type="button"
+                data-bs-target="#modalCarousel"
+                data-bs-slide="prev"
+              >
+                <span className="carousel-control-prev-icon" />
+              </button>
+
+              <button
+                className="carousel-control-next"
+                type="button"
+                data-bs-target="#modalCarousel"
+                data-bs-slide="next"
+              >
+                <span className="carousel-control-next-icon" />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </section>
   );
 }
