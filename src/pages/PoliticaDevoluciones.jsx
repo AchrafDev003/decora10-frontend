@@ -73,7 +73,7 @@ const PoliticaDevoluciones = () => {
           <h3 style={{ color: "#ff6600" }}>7. Contacto</h3>
           <p>Para cualquier duda sobre devoluciones o reembolsos, contáctanos en:</p>
           <ul>
-            <li>Correo electrónico: <strong>cuesl@hotmail.com</strong></li>
+            <li>Correo electrónico: <strong>decora10.colchon10@gmail.com</strong></li>
             <li>Teléfono: <strong>+34 953-581-802</strong></li>
             <li>Dirección: <strong>Avenida Andalucia 8, Alcala la Real, 23680, Jaen</strong></li>
           </ul>

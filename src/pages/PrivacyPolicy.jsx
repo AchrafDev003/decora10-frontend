@@ -14,8 +14,8 @@ const PrivacyPolicy = () => {
             <h2>1. Identidad del responsable</h2>
             <p>
               <strong>Decora10, S.L.</strong> (en adelante, <em>“Decora10”</em>)<br />
-              CIF: <strong>[Rellenar CIF]</strong><br />
-              Dirección: <strong>[Rellenar dirección completa]</strong><br />
+              CIF: <strong>B23684582</strong><br />
+              Dirección: <strong>Avenida Andalucía 8, Alcalá la Real, Jaén</strong><br />
               Correo: <a href="mailto:info@decora10.com">info@decora10.com</a>
             </p>
           </section>
