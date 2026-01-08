@@ -372,3 +372,27 @@
     display: none;
   }
 }
+
+.video-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.video-link-wrapper {
+  display: flex;          /* hace que el <a> sea un contenedor flex */
+  justify-content: center;
+  align-items: center;
+  width: 100%;            /* ocupa todo el contenedor */
+}
+
+.clickable-video {
+  max-width: 100%;
+  height: auto;
+  border-radius: 1.5rem;
+  object-fit: contain;
+  cursor: pointer;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+}
+

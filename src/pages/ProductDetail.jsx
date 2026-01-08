@@ -113,6 +113,10 @@ useEffect(() => {
     handleScroll();
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);
+  // Scroll siempre al inicio al cambiar de producto
+useEffect(() => {
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+}, [id]);
 
   // Favoritos
   useEffect(() => {

@@ -120,17 +120,43 @@ else {
       {video ? (
         <div className="hero-video-layout container">
           <div className="video-container">
-            <video
-              ref={videoRef}
-              src={mediaUrl}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="video-element"
-              onError={() => console.error("No se pudo reproducir el video:", mediaUrl)}
-            />
-          </div>
+  {item.link ? (
+    <a
+      href={item.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="video-link-wrapper"
+    >
+      <video
+        ref={videoRef}
+        src={mediaUrl}
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="video-element clickable-video"
+        onError={() =>
+          console.error("No se pudo reproducir el video:", mediaUrl)
+        }
+      />
+    </a>
+  ) : (
+    <video
+      ref={videoRef}
+      src={mediaUrl}
+      autoPlay
+      muted
+      loop
+      playsInline
+      className="video-element"
+      onError={() =>
+        console.error("No se pudo reproducir el video:", mediaUrl)
+      }
+    />
+  )}
+</div>
+
+
 
           <div className="vertical-divider"></div>
 
