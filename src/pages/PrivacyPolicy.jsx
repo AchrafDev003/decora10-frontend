@@ -16,7 +16,7 @@ const PrivacyPolicy = () => {
               <strong>Decora10, S.L.</strong> (en adelante, <em>“Decora10”</em>)<br />
               CIF: <strong>B23684582</strong><br />
               Dirección: <strong>Avenida Andalucía 8, Alcalá la Real, Jaén</strong><br />
-              Correo: <a href="mailto:info@decora10.com">info@decora10.com</a>
+              Correo: <a href="mailto:decora10.colchon10@gmail.com">info@decora10.com</a>
             </p>
           </section>
 

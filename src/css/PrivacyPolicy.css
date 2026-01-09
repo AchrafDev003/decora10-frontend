@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+  background: linear-gradient(135deg, #3f0608 0%, #fad0c4 100%);
   padding: 2rem;
   font-family: 'Poppins', sans-serif;
 }
@@ -39,7 +39,7 @@
 .privacy-subtitle {
   font-size: 2.3rem;
   text-align: center;
-  color: #ac4a4a;
+  color: #4e0606;
   margin-bottom: 2rem;
 }
 
@@ -69,13 +69,13 @@
 }
 
 .privacy-content a {
-  color: #ffd700;
+  color: #4e0f0f;
   text-decoration: underline;
   transition: color 0.3s;
 }
 
 .privacy-content a:hover {
-  color: #ffeb3b;
+  color: #4e0f0f;
 }
 
 /* Lista con estilo */
