@@ -13,7 +13,7 @@ const PrivacyPolicy = () => {
           <section>
             <h2>1. Identidad del responsable</h2>
             <p>
-              <strong>Decora10, S.L.</strong> (en adelante, <em>“Decora10”</em>)<br />
+              <strong>Cueheredi, S.L.</strong> (en adelante, <em>“Decora10”</em>)<br />
               CIF: <strong>B23684582</strong><br />
               Dirección: <strong>Avenida Andalucía 8, Alcalá la Real, Jaén</strong><br />
               Correo: <a href="mailto:decora10.colchon10@gmail.com">info@decora10.com</a>
