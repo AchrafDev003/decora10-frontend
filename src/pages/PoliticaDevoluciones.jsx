@@ -1,8 +1,13 @@
 // src/Pages/PoliticaDevoluciones.jsx
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
 
 const PoliticaDevoluciones = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   return (
     <div className="container py-5" style={{ backgroundColor: "#111", color: "#fff", minHeight: "100vh" }}>
       <div className="p-4 p-md-5 rounded-4" style={{ backgroundColor: "#1c1c1c", boxShadow: "0 8px 20px rgba(0,0,0,0.5)" }}>

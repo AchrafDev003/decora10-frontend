@@ -1,8 +1,15 @@
 // src/pages/PrivacyPolicy.jsx
-import React from 'react';
+import React, { useEffect } from "react";
+
 import '../css/PrivacyPolicy.css'; // CSS aparte para estilos locos
 
+
+
+
 const PrivacyPolicy = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className="privacy-container">
       <div className="privacy-card">
