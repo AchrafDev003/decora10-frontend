@@ -1,98 +1,122 @@
-// src/Context/Carrito/CartContext.jsx
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-
-/**
- * @typedef {Object} CartItem
- * @property {number|string} id
- * @property {string} name
- * @property {number} price
- * @property {number} quantity
- * @property {string} [image]
- * @property {boolean} [is_promo]
- * @property {number} [promo_price]
- */
+import {
+  addToCart as apiAddToCart,
+  removeFromCart as apiRemoveFromCart,
+  getCart,
+} from "../../services/api";
 
 const CartContext = createContext();
 
-/**
- * CartProvider: Contexto global para carrito de compras
- */
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState(() => {
-    const storedCart = localStorage.getItem("cartItems");
-    return storedCart ? JSON.parse(storedCart) : [];
-  });
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Guardar cambios automáticamente en localStorage
+  /* =============================
+     🔹 Cargar carrito desde backend
+  ============================== */
+  const fetchCart = async () => {
+    try {
+      const res = await getCart();
+      if (res.success) {
+        setCartItems(res.data.items || []);
+      }
+    } catch {
+      console.error("Error cargando carrito");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems]);
+    fetchCart();
+  }, []);
 
-  /** Agrega un producto al carrito con restricciones */
-  const addToCart = (product) => {
-    const existingProduct = cartItems.find(item => item.id === product.id);
-    const currentTotal = cartItems.reduce((sum, item) => sum + item.quantity * (item.promo_price || item.price), 0);
-    const nextTotal = currentTotal + (product.promo_price || product.price);
+  /* =============================
+     🔹 Añadir al carrito (BACKEND)
+  ============================== */
+  const addToCart = async (
+    itemId,
+    quantity = 1,
+    type = "product",
+    measure = null
+  ) => {
+    try {
+      const res = await apiAddToCart(itemId, quantity, type, measure);
 
-    if (existingProduct && existingProduct.quantity >= 3) {
-      toast.error("No puedes añadir más de 3 unidades del mismo producto.");
-      return;
+      if (!res.success) {
+        toast.error(res.message || "No se pudo añadir al carrito");
+        return;
+      }
+
+      await fetchCart();
+      toast.success("Producto añadido al carrito");
+    } catch (err) {
+      toast.error("Error al añadir al carrito");
+      console.error(err);
     }
-
-    if (nextTotal > 1000) {
-      toast.error("El total del carrito no puede superar los 1000 €.");
-      return;
-    }
-
-    if (existingProduct) {
-      setCartItems(cartItems.map(item =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ));
-    } else {
-      setCartItems([...cartItems, { ...product, quantity: 1 }]);
-    }
-
-    toast.success(`${product.name} agregado al carrito`);
   };
 
-  /** Elimina un producto del carrito */
-  const removeFromCart = (id) => {
-    const product = cartItems.find(item => item.id === id);
-    if (!product) return;
+  /* =============================
+     🔹 Eliminar item
+  ============================== */
+  const removeFromCart = async (itemId, type = "product") => {
+    try {
+      const res = await apiRemoveFromCart(itemId, type);
 
-    setCartItems(cartItems.filter(item => item.id !== id));
-    toast.success(`${product.name} eliminado del carrito`);
+      if (!res.success) {
+        toast.error("No se pudo eliminar el producto");
+        return;
+      }
+
+      await fetchCart();
+      toast.success("Producto eliminado del carrito");
+    } catch {
+      toast.error("Error al eliminar del carrito");
+    }
   };
 
-  /** Vacía todo el carrito */
-  const clearCart = () => {
-    if (cartItems.length === 0) return;
-    setCartItems([]);
-    toast.success("Carrito vacío");
+  /* =============================
+     🔹 Vaciar carrito
+  ============================== */
+  const clearCart = async () => {
+    try {
+      await fetchCart();
+      toast.success("Carrito vaciado");
+    } catch {
+      toast.error("Error al vaciar carrito");
+    }
   };
 
-  /** Total de productos en carrito */
-  const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  /* =============================
+     🔹 Totales
+  ============================== */
+  const totalItems = cartItems.reduce(
+    (acc, item) => acc + item.quantity,
+    0
+  );
 
-  /** Total monetario */
-  const totalPrice = cartItems.reduce((acc, item) => acc + item.quantity * (item.promo_price || item.price), 0);
+  const totalPrice = cartItems.reduce(
+    (acc, item) => acc + item.total_price,
+    0
+  );
 
   return (
-    <CartContext.Provider value={{
-      cartItems,
-      addToCart,
-      removeFromCart,
-      clearCart,
-      totalItems,
-      totalPrice
-    }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        totalItems,
+        totalPrice,
+        loading,
+        fetchCart,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
 };
 
-/** Hook personalizado para usar el carrito */
 export const useCart = () => useContext(CartContext);

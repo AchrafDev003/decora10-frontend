@@ -271,13 +271,19 @@ export const getCartTotal = async () => {
 // ===============================
 // 🔹 Añadir item al carrito
 // ===============================
-export const addToCart = async (itemId, quantity = 1, type = "product", measure = null) => {
+export const addToCart = async (
+  itemId,
+  quantity = 1,
+  type = "product",
+  measure = null
+) => {
   try {
-    // Payload básico
-    const payload = { id: itemId, type, quantity };
-
-    // Añadir medida si existe
-    if (measure) payload.measure = measure;
+    const payload = {
+      id: itemId,
+      type,
+      quantity,
+      measure: measure ?? null, // 🔥 SIEMPRE
+    };
 
     const res = await api.post(
       `/cart/items/${itemId}`,
@@ -289,46 +295,72 @@ export const addToCart = async (itemId, quantity = 1, type = "product", measure 
     return res.data;
   } catch (err) {
     console.error("addToCart error:", err.response?.data || err.message);
-    return { success: false, error: err.response?.data?.message || err.message };
+    return {
+      success: false,
+      message: err.response?.data?.message || err.message,
+    };
   }
 };
+
 
 // ===============================
 // 🔹 Actualizar cantidad de un item
 // ===============================
-export const updateCart = async (itemId, quantity = 1, type = "product", measure = null) => {
+export const updateCart = async (
+  itemId,
+  quantity = 1,
+  type = "product",
+  measure = null
+) => {
   try {
-    const payload = { id: itemId, type, quantity };
-    if (measure) payload.measure = measure;
+    const payload = {
+      id: itemId,
+      type,
+      quantity,
+      measure: measure ?? null, // 🔥 SIEMPRE
+    };
 
     const res = await api.put(
       `/cart/items/${itemId}`,
       payload,
       { headers: getAuthHeader() }
     );
+
     return res.data;
   } catch (err) {
     console.error("updateCart error:", err.response?.data || err.message);
-    return { success: false, error: err.response?.data?.message || err.message };
+    return {
+      success: false,
+      message: err.response?.data?.message || err.message,
+    };
   }
 };
 
 // ===============================
 // 🔹 Eliminar item del carrito
 // ===============================
-export const removeFromCart = async (itemId, type = "product") => {
+export const removeFromCart = async (
+  itemId,
+  type = "product",
+  measure = null
+) => {
   try {
-    const res = await api.delete(
-      `/cart/items/${itemId}`,
-      { 
-        headers: getAuthHeader(),
-        data: { id: itemId, type } // DELETE con body
-      }
-    );
+    const res = await api.delete(`/cart/items/${itemId}`, {
+      headers: getAuthHeader(),
+      data: {
+        id: itemId,
+        type,
+        measure: measure ?? null, // 🔥 IMPORTANTE
+      },
+    });
+
     return res.data;
   } catch (err) {
     console.error("removeFromCart error:", err.response?.data || err.message);
-    return { success: false, error: err.response?.data?.message || err.message };
+    return {
+      success: false,
+      message: err.response?.data?.message || err.message,
+    };
   }
 };
 
