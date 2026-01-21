@@ -265,26 +265,47 @@ export const getCartTotal = async () => {
 };
 
 // Añadir producto
-export const addToCart = async (productId, quantity = 1) => {
+// ===============================
+// 🔹 Añadir producto o pack al carrito
+// ===============================
+// ===============================
+// 🔹 Añadir item al carrito
+// ===============================
+export const addToCart = async (itemId, quantity = 1, type = "product", measure = null) => {
   try {
+    // Payload básico
+    const payload = { id: itemId, type, quantity };
+
+    // Añadir medida si existe
+    if (measure) payload.measure = measure;
+
     const res = await api.post(
-      `/cart/items/${productId}`,
-      { quantity },
+      `/cart/items/${itemId}`,
+      payload,
       { headers: getAuthHeader() }
     );
+
     console.log("addToCart response:", res.data);
     return res.data;
   } catch (err) {
-    console.error("addToCart error:", err.error || err.message);
+    console.error("addToCart error:", err.response?.data || err.message);
     return { success: false, error: err.response?.data?.message || err.message };
   }
 };
 
-
-// Actualizar cantidad
-export const updateCart = async (productId, quantity) => {
+// ===============================
+// 🔹 Actualizar cantidad de un item
+// ===============================
+export const updateCart = async (itemId, quantity = 1, type = "product", measure = null) => {
   try {
-    const res = await api.put(`/cart/items/${productId}`, { quantity }, { headers: getAuthHeader() });
+    const payload = { id: itemId, type, quantity };
+    if (measure) payload.measure = measure;
+
+    const res = await api.put(
+      `/cart/items/${itemId}`,
+      payload,
+      { headers: getAuthHeader() }
+    );
     return res.data;
   } catch (err) {
     console.error("updateCart error:", err.response?.data || err.message);
@@ -292,10 +313,18 @@ export const updateCart = async (productId, quantity) => {
   }
 };
 
-// Eliminar producto
-export const removeFromCart = async (productId) => {
+// ===============================
+// 🔹 Eliminar item del carrito
+// ===============================
+export const removeFromCart = async (itemId, type = "product") => {
   try {
-    const res = await api.delete(`/cart/items/${productId}`, { headers: getAuthHeader() });
+    const res = await api.delete(
+      `/cart/items/${itemId}`,
+      { 
+        headers: getAuthHeader(),
+        data: { id: itemId, type } // DELETE con body
+      }
+    );
     return res.data;
   } catch (err) {
     console.error("removeFromCart error:", err.response?.data || err.message);
@@ -303,7 +332,9 @@ export const removeFromCart = async (productId) => {
   }
 };
 
-// Vaciar carrito
+// ===============================
+// 🔹 Vaciar carrito
+// ===============================
 export const emptyCart = async () => {
   try {
     const res = await api.delete("/cart", { headers: getAuthHeader() });
@@ -313,6 +344,7 @@ export const emptyCart = async () => {
     return { success: false, error: err.response?.data?.message || err.message };
   }
 };
+
 
 // Checkout (si quieres un endpoint separado)
 // ✅ checkoutCart.js

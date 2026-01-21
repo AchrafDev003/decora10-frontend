@@ -18,7 +18,6 @@ import "react-toastify/dist/ReactToastify.css";
 import ImageZoom from "../Components/ImageMagnifier";
 import LoginModal from "../Components/LoginModal";
 import "../css/ProductDetail.css";
-import { get } from "react-hook-form";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -37,25 +36,20 @@ export default function ProductDetail() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [relatedProductsByWord, setRelatedProductsByWord] = useState([]);
   const [showImageModal, setShowImageModal] = useState(false);
-const [activeImageIndex, setActiveImageIndex] = useState(0);
-
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   // Medidas de Colchonería
   const MEASURE_ADJUST = { "90x190": -100, "135x190": 0, "150x190": 80 };
   const [selectedMeasure, setSelectedMeasure] = useState("135x190");
   const [isMobile, setIsMobile] = useState(false);
 
-useEffect(() => {
-  const checkMobile = () => {
-    setIsMobile(window.innerWidth < 768); // Bootstrap md breakpoint
-  };
-
-  checkMobile();
-  window.addEventListener("resize", checkMobile);
-  return () => window.removeEventListener("resize", checkMobile);
-}, []);
-
-  
+  // Detectar mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Fetch producto y reviews
   useEffect(() => {
@@ -77,7 +71,7 @@ useEffect(() => {
     fetchData();
   }, [id]);
 
-  // Fetch productos relacionados
+  // Productos relacionados
   useEffect(() => {
     if (!producto?.category?.id) return;
 
@@ -85,16 +79,17 @@ useEffect(() => {
       const res = await getProductsFiltrados({
         category_id: producto.category.id,
         exclude_id: producto.id,
-        limit: 6
+        limit: 6,
       });
       if (res.success) setRelatedProducts(res.data.data || []);
     };
-    fetchRelated();
 
     const fetchRelatedByWord = async () => {
       const res = await getRelatedByFirstWord(producto.id);
       if (res.success) setRelatedProductsByWord(res.data.data || []);
     };
+
+    fetchRelated();
     fetchRelatedByWord();
   }, [producto]);
 
@@ -113,34 +108,23 @@ useEffect(() => {
     handleScroll();
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);
-  // Scroll siempre al inicio al cambiar de producto
-useEffect(() => {
-  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-}, [id]);
 
-  // Favoritos
+  // Scroll al inicio al cambiar de producto
+  useEffect(() => window.scrollTo({ top: 0, left: 0, behavior: "auto" }), [id]);
+
+  // Favoritos desde localStorage
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("favoritos") || "[]");
     setFavoritos(saved);
   }, []);
 
-  // Modal imagenes
+  // Bloqueo scroll modal imagen
   useEffect(() => {
-  if (showImageModal) {
-    // Bloquea el scroll
-    document.body.style.overflow = "hidden";
-  } else {
-    // Restaura el scroll
-    document.body.style.overflow = "auto";
-  }
+    document.body.style.overflow = showImageModal ? "hidden" : "auto";
+    return () => { document.body.style.overflow = "auto"; };
+  }, [showImageModal]);
 
-  // Limpieza al desmontar
-  return () => {
-    document.body.style.overflow = "auto";
-  };
-}, [showImageModal]);
-
-
+  // Guardar favoritos
   useEffect(() => {
     localStorage.setItem("favoritos", JSON.stringify(favoritos));
   }, [favoritos]);
@@ -152,58 +136,82 @@ useEffect(() => {
 
     if (favoritos.includes(pid)) {
       const res = await removeFavorite(pid);
-      if (res.success) setFavoritos((prev) => prev.filter((f) => f !== pid));
+      if (res.success) setFavoritos(prev => prev.filter(f => f !== pid));
     } else {
       const res = await addFavorite(pid);
-      if (res.success) setFavoritos((prev) => [...prev, pid]);
+      if (res.success) setFavoritos(prev => [...prev, pid]);
     }
   };
 
-  const handleAddToCart = async (producto) => {
-    const user = JSON.parse(localStorage.getItem("user") || "null");
-    const token = localStorage.getItem("token");
+ const handleAddToCart = async (producto) => {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const token = localStorage.getItem("token");
 
-    if (!user && !token) { setShowLoginModal(true); return; }
+  if (!user || !token) {
+    setShowLoginModal(true);
+    return;
+  }
 
-    const basePrice = producto.promo_price ?? producto.price ?? 0;
-    const finalPrice = producto.category?.id === 76 ? basePrice + (MEASURE_ADJUST[selectedMeasure] ?? 0) : basePrice;
+  // Determinar tipo: pack o product
+  const type = producto.isPack ? "pack" : "product";
 
-    if (user) {
-      const res = await addToCart(producto.id, 1, selectedMeasure, finalPrice);
-      if (res.success) {
-        await fetchCart();
-        toast.success("Producto añadido al carrito");
-      } else toast.error(res.error);
-      return;
-    }
+  // Payload mínimo requerido por backend
+  const payload = {
+    id: producto.id,
+    type: type,
+    quantity: 1,
+  };
 
+  // Añadir medida si es colchón
+if (producto.category?.id === 76) {
+  payload.measure = selectedMeasure;
+}
+
+  // Enviar al backend
+  const res = await addToCart(payload.id, payload.quantity, type, payload.measure);
+
+  if (res.success) {
+    await fetchCart();
+    toast.success("Producto añadido al carrito");
+  } else {
+    toast.error(res.error);
+  }
+
+  // Gestión de carrito local para guest
+  if (!user) {
     let localCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const exists = localCart.find((p) => p.product_id === producto.id && p.measure === selectedMeasure);
+    const exists = localCart.find(
+      (p) => p.product_id === producto.id && p.measure === selectedMeasure
+    );
 
     if (exists) {
-      if (exists.quantity >= 3) { toast.error("Máximo 3 unidades por producto"); return; }
+      if (exists.quantity >= 3) {
+        toast.error("Máximo 3 unidades por producto");
+        return;
+      }
       exists.quantity++;
     } else {
       const firstImage = producto.images?.[0]?.image_path
-        ? producto.images[0].image_path.startsWith("http")
-          ? producto.images[0].image_path
-          : `${import.meta.env.VITE_API_URL}/${producto.images[0].image_path}`
+        ? getImageUrl(producto.images[0].image_path)
         : "/images/placeholder.png";
 
       localCart.push({
         product_id: producto.id,
         name: producto.name,
-        price: finalPrice,
+        price: producto.promo_price ?? producto.price ?? 0,
         quantity: 1,
         image: firstImage,
-        measure: selectedMeasure
+        measure: selectedMeasure,
+        type: type,
       });
     }
 
     localStorage.setItem("cart", JSON.stringify(localCart));
     await fetchCart();
     toast.success("Producto añadido al carrito (guest)");
-  };
+  }
+};
+
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -228,168 +236,119 @@ useEffect(() => {
 
   // Precio dinámico
   const basePrice = producto.promo_price ?? producto.price ?? 0;
-  const finalPrice = producto.category?.id === 76 ? basePrice + (MEASURE_ADJUST[selectedMeasure] ?? 0) : basePrice;
+  const finalPrice = producto.category?.id === 76
+    ? basePrice + (MEASURE_ADJUST[selectedMeasure] ?? 0)
+    : basePrice;
 
   return (
     <section className="py-5" style={{ background: "linear-gradient(135deg, #d6d31bff, #eef3ee)", minHeight: "100vh" }}>
       <ToastContainer />
       <div className="container-md">
-      {/* Imagen + Info */}
-<div className="row g-4 align-items-start flex-column flex-md-row">
 
-  {/* Imagen */}
-  <div className="col-12 col-md-7 col-lg-6 text-center">
-    <div className="product-image-wrapper cursor-pointer" onClick={() => {
-    setActiveImageIndex(idx);
-    setShowImageModal(true);
-  }}>
+        {/* Imagen + Info */}
+        <div className="row g-4 align-items-start flex-column flex-md-row">
 
-      {producto.images?.length ? (
-        <div
-          id={`carousel-product-${producto.id}`}
-          className="carousel slide w-100 h-100"
-          data-bs-ride="carousel"
-          data-bs-interval="3000"
-        >
-          <div className="carousel-inner h-100">
-
-            {producto.images.map((img, idx) => {
-              const url = getImageUrl(img.image_path) || "/images/placeholder.png";
-
-              return (
+          {/* Imagen */}
+          <div className="col-12 col-md-7 col-lg-6 text-center">
+            <div className="product-image-wrapper">
+              {producto.images?.length ? (
                 <div
-                  key={idx}
-                  className={`carousel-item h-100 ${idx === 0 ? "active" : ""}`}
+                  id={`carousel-product-${producto.id}`}
+                  className="carousel slide w-100 h-100"
+                  data-bs-ride="carousel"
+                  data-bs-interval="3000"
                 >
-                  <div className="d-flex justify-content-center align-items-center h-100">
-
-                    {isMobile ? (
-                       <img
-                    src={url}
-                    alt={producto.name}
-                    className="product-image"
-                    onClick={() => {
-                      setActiveImageIndex(idx);
-                      setShowImageModal(true);
-                    }}
-                  />
-                ) : (
-                  <div
-                    className="product-image"
-                    onClick={() => {
-                      setActiveImageIndex(idx);
-                      setShowImageModal(true);
-                    }}
-                  >
-                    <ImageZoom
-                      src={url}
-                      alt={producto.name}
-                      zoom={2.5}
-                      size={300}
-                    />
-                      </div>
-                    )}
-
+                  <div className="carousel-inner h-100">
+                    {producto.images.map((img, idx) => {
+                      const url = getImageUrl(img.image_path) || "/images/placeholder.png";
+                      return (
+                        <div key={idx} className={`carousel-item h-100 ${idx === 0 ? "active" : ""}`}>
+                          <div className="d-flex justify-content-center align-items-center h-100">
+                            {isMobile ? (
+                              <img
+                                src={url}
+                                alt={producto.name}
+                                className="product-image cursor-pointer"
+                                onClick={() => { setActiveImageIndex(idx); setShowImageModal(true); }}
+                              />
+                            ) : (
+                              <div className="product-image cursor-pointer" onClick={() => { setActiveImageIndex(idx); setShowImageModal(true); }}>
+                                <ImageZoom src={url} alt={producto.name} zoom={2.5} size={300} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
+
+                  {producto.images.length > 1 && (
+                    <>
+                      <button className="carousel-control-prev" type="button" data-bs-target={`#carousel-product-${producto.id}`} data-bs-slide="prev">
+                        <span className="carousel-control-prev-icon custom-carousel-btn" />
+                        <span className="visually-hidden">Previous</span>
+                      </button>
+                      <button className="carousel-control-next" type="button" data-bs-target={`#carousel-product-${producto.id}`} data-bs-slide="next">
+                        <span className="carousel-control-next-icon custom-carousel-btn" />
+                        <span className="visually-hidden">Next</span>
+                      </button>
+                    </>
+                  )}
                 </div>
-              );
-            })}
+              ) : (
+                <div className="product-image cursor-pointer" onClick={() => setShowImageModal(true)}>
+                  <ImageZoom src={producto.image || "/images/placeholder.png"} alt={producto.name} zoom={2.5} size={300} />
+                </div>
+              )}
+            </div>
           </div>
 
-          {producto.images.length > 1 && (
-            <>
-              <button
-                className="carousel-control-prev"
-                type="button"
-                data-bs-target={`#carousel-product-${producto.id}`}
-                data-bs-slide="prev"
-              >
-                <span className="carousel-control-prev-icon custom-carousel-btn" />
-                <span className="visually-hidden">Previous</span>
+          {/* Info */}
+          <div className="col-12 col-md-5 col-lg-6 text-center text-md-start">
+            <h2 className="fw-bold mb-3 text-dark">{producto.name}</h2>
+            <div className="mb-3">
+              {producto.promo_price ? (
+                <>
+                  <span className="text-muted text-decoration-line-through me-2">€{(producto.price ?? 0).toFixed(2)}</span>
+                  <span className="fw-bold text-success fs-4">€{finalPrice.toFixed(2)}</span>
+                </>
+              ) : <span className="fw-bold fs-4">€{finalPrice.toFixed(2)}</span>}
+            </div>
+
+            <p className={`product-description ${showFullDesc ? "expanded" : ""} text-muted`}>
+              {producto.description || "Sin descripción."}
+            </p>
+
+            {producto.description?.length > 200 && (
+              <button className="btn btn-link p-0 text-success fw-bold" onClick={() => setShowFullDesc(!showFullDesc)}>
+                {showFullDesc ? "Leer menos" : "Leer más"}
               </button>
+            )}
 
-              <button
-                className="carousel-control-next"
-                type="button"
-                data-bs-target={`#carousel-product-${producto.id}`}
-                data-bs-slide="next"
-              >
-                <span className="carousel-control-next-icon custom-carousel-btn" />
-                <span className="visually-hidden">Next</span>
+            <p className="mt-2"><strong>Categoría:</strong> {producto.category?.name || "N/A"}</p>
+
+            {producto.category?.id === 76 && (
+              <div className="mb-3">
+                <label className="fw-semibold me-2">Selecciona medida:</label>
+                {Object.keys(MEASURE_ADJUST).map(measure => (
+                  <button
+                    key={measure}
+                    className={`btn me-2 mb-2 ${selectedMeasure === measure ? "btn-success" : "btn-outline-secondary"}`}
+                    onClick={() => setSelectedMeasure(measure)}
+                    type="button"
+                  >{measure}</button>
+                ))}
+              </div>
+            )}
+
+            <div className="d-flex flex-column flex-sm-row gap-3 mt-4">
+              <button className="btn btn-success fw-bold fs-5" onClick={() => handleAddToCart(producto)}>🛒 Añadir al carrito</button>
+              <button className={`btn ${favoritos.includes(producto.id) ? "btn-danger" : "btn-outline-danger"} fw-bold`} onClick={() => toggleFavorito(producto.id)}>
+                ❤️ {favoritos.includes(producto.id) ? "Quitar" : "Favorito"}
               </button>
-            </>
-          )}
+            </div>
+          </div>
         </div>
-      ) : (
-        <div className="product-image">
-          <ImageZoom
-            src={producto.image || "/images/placeholder.png"}
-            alt={producto.name}
-            zoom={2.5}
-            size={300}
-          />
-        </div>
-      )}
-    </div>
-  </div>
-
-  {/* Info */}
-  <div className="col-12 col-md-5 col-lg-6 text-center text-md-start">
-    <h2 className="fw-bold mb-3 text-dark">{producto.name}</h2>
-
-    <div className="mb-3">
-      {producto.promo_price ? (
-        <>
-          <span className="text-muted text-decoration-line-through me-2">
-            €{(producto.price ?? 0).toFixed(2)}
-          </span>
-          <span className="fw-bold text-success fs-4">
-            €{finalPrice.toFixed(2)}
-          </span>
-        </>
-      ) : (
-        <span className="fw-bold fs-4">€{finalPrice.toFixed(2)}</span>
-      )}
-    </div>
-
-    <p className={`product-description ${showFullDesc ? "expanded" : ""} text-muted`}>
-      {producto.description || "Sin descripción."}
-    </p>
-
-    {producto.description?.length > 200 && (
-      <button
-        className="btn btn-link p-0 text-success fw-bold"
-        onClick={() => setShowFullDesc(!showFullDesc)}
-      >
-        {showFullDesc ? "Leer menos" : "Leer más"}
-      </button>
-    )}
-
-    <p className="mt-2">
-      <strong>Categoría:</strong> {producto.category?.name || "N/A"}
-    </p>
-
-    <div className="d-flex flex-column flex-sm-row gap-3 mt-4">
-      <button
-        className="btn btn-success fw-bold fs-5"
-        onClick={() => handleAddToCart(producto)}
-      >
-        🛒 Añadir al carrito
-      </button>
-
-      <button
-        className={`btn ${
-          favoritos.includes(producto.id)
-            ? "btn-danger"
-            : "btn-outline-danger"
-        } fw-bold`}
-        onClick={() => toggleFavorito(producto.id)}
-      >
-        ❤️ {favoritos.includes(producto.id) ? "Quitar" : "Favorito"}
-      </button>
-    </div>
-  </div>
-</div>
 
 
         {/* Reseñas */}
