@@ -181,26 +181,28 @@ export default function Shop() {
   // -------------------------------
   // Carrito
   // -------------------------------
-  const handleAddToCart = async (producto) => {
-    if (!user) return setAuthModalOpen(true);
+  // -------------------------------
+// Carrito
+// -------------------------------
+const handleAddToCart = async (producto) => {
+  if (!user) return setAuthModalOpen(true);
 
-    try {
-      await addToCart(
-        {
-          id: producto.id,
-          name: producto.name,
-          price: producto.promo_price ?? producto.price,
-          promo_price: producto.promo_price,
-          image: producto.images?.[0]?.image_path || PLACEHOLDER_IMG,
-        },
-        1
-      );
-      toast.success("Producto añadido al carrito");
-    } catch (err) {
-      console.error(err);
-      toast.error("No se pudo añadir al carrito");
-    }
-  };
+  try {
+    // Solo enviamos lo que CartContext espera: id, cantidad, tipo y medida
+    await addToCart(
+      producto.id,            // item_id
+      1,                      // quantity
+      "product",              // type (puede ser "pack" si es un pack)
+      producto.measure || null // medida
+    );
+
+    toast.success(`${producto.name} añadido al carrito`);
+  } catch (err) {
+    console.error(err);
+    toast.error("No se pudo añadir al carrito");
+  }
+};
+
 
   // -------------------------------
   // Paginación

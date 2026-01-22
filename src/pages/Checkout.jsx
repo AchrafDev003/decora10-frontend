@@ -34,13 +34,18 @@ async function geocodePostalCode(postalCode) {
    LOGÍSTICA
 ================================ */
 const getCartLogisticType = (items) => {
+  console.log("Determinando tipo logístico para items:", items);
   if (items.some(i => i.logistic_type === "heavy")) return "heavy";
   if (items.some(i => i.logistic_type === "medium")) return "medium";
   return "small";
 };
 
-
 const calculateTransportFee = ({ distanceKm, logisticType, subtotal }) => {
+  console.log("Calculando transporte:", { distanceKm, logisticType, subtotal });
+  // HEAVY siempre paga transporte
+  if (logisticType === "heavy") return 50;
+
+  // Para el resto, sí depende de la distancia
   if (!distanceKm || distanceKm <= 20) return 0;
 
   switch (logisticType) {
@@ -52,13 +57,11 @@ const calculateTransportFee = ({ distanceKm, logisticType, subtotal }) => {
       if (subtotal < 150) return 24.5;
       return 27.5;
 
-    case "heavy":
-      return 50;
-
     default:
       return 0;
   }
 };
+
 
 /* ================================
    DISTANCIA (HAVERSINE)
@@ -172,7 +175,14 @@ const Checkout = () => {
   }, [paymentOptions]);
 
   // ------------------- Totales y descuentos -------------------
-  const subtotal = useMemo(() => Number(total || 0), [total]);
+  // Subtotal real considerando promo_price y cantidad
+const subtotal = useMemo(() => 
+  cartItems.reduce((sum, item) => {
+    const price = Number(item.promo_price ?? item.price ?? 0);
+    const quantity = Number(item.quantity ?? 1);
+    return sum + price * quantity;
+  }, 0)
+, [cartItems]);
   const discountAmount = useMemo(() => Number(discountData.amount || 0), [discountData]);
   const subtotalAfterDiscount = useMemo(() => Math.max(subtotal - discountAmount, 0), [subtotal, discountAmount]);
 
@@ -181,31 +191,31 @@ const Checkout = () => {
      TRANSPORTE
   ================================ */
   const { distanceKm, transportFee, cartLogisticType } = useMemo(() => {
-    if (!userLocation) {
-      return { distanceKm: null, transportFee: 0, cartLogisticType: "small" };
-    }
+  const logisticType = getCartLogisticType(cartItems);
 
-    const dist = getDistanceKm(
-      userLocation.latitude,
-      userLocation.longitude,
-      STORE_POSITION[0],
-      STORE_POSITION[1]
-    );
-      console.log("cartenItems:", cartItems);
-    const logisticType = getCartLogisticType(cartItems);
+  // Distancia solo si hay ubicación
+  const dist = userLocation
+    ? getDistanceKm(
+        userLocation.latitude,
+        userLocation.longitude,
+        STORE_POSITION[0],
+        STORE_POSITION[1]
+      )
+    : null;
 
-    const fee = calculateTransportFee({
-      distanceKm: dist,
-      logisticType,
-      subtotal: subtotalAfterDiscount,
-    });
+  const fee = calculateTransportFee({
+    distanceKm: dist,
+    logisticType,
+    subtotal: subtotalAfterDiscount,
+  });
 
-    return {
-      distanceKm: dist,
-      transportFee: fee,
-      cartLogisticType: logisticType,
-    };
-  }, [userLocation, cartItems, subtotalAfterDiscount]);
+  return {
+    distanceKm: dist,
+    transportFee: fee,
+    cartLogisticType: logisticType,
+  };
+}, [userLocation, cartItems, subtotalAfterDiscount]);
+
 
   // ------------------- Total final -------------------
   const finalTotal = useMemo(() => Number(subtotalAfterDiscount) + Number(transportFee || 0), [subtotalAfterDiscount, transportFee]);
@@ -420,14 +430,31 @@ const handleOrder = async (paymentIntent = null) => {
           )}
 
           <div className="d-flex justify-content-between align-items-center mb-1">
-            <small className="text-muted">Subtotal</small>
-            <small className="fw-semibold">€{subtotal.toFixed(2)}</small>
-          </div>
+  <small className="text-muted">Subtotal</small>
+  <small className="fw-semibold">
+    €{cartItems
+      .reduce((sum, item) => {
+        const price = Number(item.price ?? item.promo_price ?? 0);
+        const quantity = Number(item.quantity ?? 1);
+        return sum + price * quantity;
+      }, 0)
+      .toFixed(2)}
+  </small>
+</div>
+
 
           <div className="d-flex justify-content-between align-items-center mb-1">
             <small className="text-muted">Descuento</small>
             <small className="fw-semibold">-€{discountAmount.toFixed(2)}</small>
           </div>
+          <div className="alert alert-info d-flex align-items-start gap-2 mb-3">
+  <span className="fs-4">📍</span>
+  <div className="small">
+    <strong>Envío gratuito</strong> para direcciones situadas a menos de  
+    <strong> 20 km</strong> de nuestra tienda.
+  </div>
+</div>
+
 
           <div className="d-flex justify-content-between align-items-center mb-1">
             <small className="text-muted">Transporte</small>

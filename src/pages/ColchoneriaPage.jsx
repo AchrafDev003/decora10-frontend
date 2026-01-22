@@ -7,6 +7,7 @@ import { useCart } from "../Context/Carrito/CartContext";
 import { useAuth } from "../Context/AuthContext";
 import {
   getFavorites,
+  addToCart as apiAddToCart,
   addFavorite,
   removeFavorite,
   getImageUrl,
@@ -35,25 +36,23 @@ const MEASURE_ADJUST = {
 
 export default function ColchoneriaPage() {
   const { user } = useAuth();
-  const { addToCart } = useCart();
+  const { fetchCart } = useCart();
 
   const [productos, setProductos] = useState([]);
   const [favoritos, setFavoritos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
-
-  // 👉 medida por producto
   const [selectedMeasures, setSelectedMeasures] = useState({});
 
-  // Paginación
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // Inicializar AOS
   useEffect(() => {
     AOS.init({ duration: 800 });
   }, []);
 
-  // 🔹 Fetch productos
+  // Fetch productos
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -71,13 +70,10 @@ export default function ColchoneriaPage() {
     fetchData();
   }, [page]);
 
-  // 🔹 Favoritos
+  // Fetch favoritos
   useEffect(() => {
     const fetchFavs = async () => {
-      const token = localStorage.getItem("token");
-      const storedUser = JSON.parse(localStorage.getItem("user") || "null");
-      if (!token || !storedUser?.id) return;
-
+      if (!user?.id) return;
       try {
         const res = await getFavorites();
         if (res.success && Array.isArray(res.data)) {
@@ -88,49 +84,59 @@ export default function ColchoneriaPage() {
       }
     };
     fetchFavs();
-  }, []);
+  }, [user]);
 
+  // Toggle favorito
   const toggleFavorito = async (productId) => {
     if (!user) {
       setAuthModalOpen(true);
       return;
     }
-
     try {
       if (favoritos.includes(productId)) {
         const res = await removeFavorite(productId);
-        if (res.success) {
+        if (res.success)
           setFavoritos((prev) => prev.filter((id) => id !== productId));
-        }
       } else {
         const res = await addFavorite(productId);
-        if (res.success) {
-          setFavoritos((prev) => [...prev, productId]);
-        }
+        if (res.success) setFavoritos((prev) => [...prev, productId]);
       }
     } catch {
       toast.error("Error al actualizar favoritos");
     }
   };
 
+  // Añadir al carrito
   const handleAddToCart = async (producto) => {
     if (!user) {
       setAuthModalOpen(true);
       return;
     }
 
+    const type = producto.isPack ? "pack" : "product";
     const measure = selectedMeasures[producto.id] ?? "135x190";
 
     try {
-      await addToCart(
-        producto.id,
-        1,
-        "product",
-        measure
-      );
+      const res = await apiAddToCart({
+        item_id: producto.id,
+        quantity: 1,
+        type,
+        measure: producto.category?.id === 76 ? measure : null,
+      });
 
-      toast.success("Producto añadido al carrito");
-    } catch {
+      if (!res) {
+        toast.error("No se pudo añadir al carrito (respuesta vacía)");
+        return;
+      }
+
+      if (res.success) {
+        await fetchCart();
+        toast.success("Producto añadido al carrito");
+      } else {
+        toast.error(res.message || "Producto inválido");
+      }
+    } catch (err) {
+      console.error(err);
       toast.error("No se pudo añadir al carrito");
     }
   };
@@ -151,8 +157,7 @@ export default function ColchoneriaPage() {
           <img src={logoColchon} alt="Logo Decora10" className="cp-logo mb-3" />
           <h1 className="cp-title">Colchonerí@10</h1>
           <p className="cp-subtitle">
-            Decora10 ha hecho el mejor negocio a tu lugar con los mejores
-            proveedores para darte la calidad al mejor precio.
+            Decora10 trae los mejores proveedores para darte calidad al mejor precio.
           </p>
         </div>
 
@@ -161,8 +166,7 @@ export default function ColchoneriaPage() {
           {productos.map((producto, i) => {
             const measure = selectedMeasures[producto.id] ?? "135x190";
             const basePrice = producto.promo_price ?? producto.price ?? 0;
-            const finalPrice =
-              basePrice + (MEASURE_ADJUST[measure] ?? 0);
+            const finalPrice = basePrice + (MEASURE_ADJUST[measure] ?? 0);
 
             return (
               <div
@@ -180,36 +184,30 @@ export default function ColchoneriaPage() {
                       data-bs-ride="carousel"
                     >
                       <div className="carousel-inner">
-                        {(producto.images?.length
-                          ? producto.images
-                          : [{}]
-                        ).map((img, idx) => (
-                          <div
-                            key={idx}
-                            className={`carousel-item ${
-                              idx === 0 ? "active" : ""
-                            }`}
-                          >
-                            <img
-                              src={
-                                img.image_path
-                                  ? getImageUrl(img.image_path)
-                                  : PLACEHOLDER_IMG
-                              }
-                              className="d-block w-100 cp-img"
-                              alt={producto.name}
-                            />
-                            <Link
-                              to={`/producto/${producto.id}`}
-                              className="cp-overlay-link"
+                        {(producto.images?.length ? producto.images : [{}]).map(
+                          (img, idx) => (
+                            <div
+                              key={idx}
+                              className={`carousel-item ${idx === 0 ? "active" : ""}`}
                             >
-                              Ver producto
-                            </Link>
-                          </div>
-                        ))}
+                              <img
+                                src={
+                                  img.image_path ? getImageUrl(img.image_path) : PLACEHOLDER_IMG
+                                }
+                                className="d-block w-100 cp-img"
+                                alt={producto.name}
+                              />
+                              <Link
+                                to={`/producto/${producto.id}`}
+                                className="cp-overlay-link"
+                              >
+                                Ver producto
+                              </Link>
+                            </div>
+                          )
+                        )}
                       </div>
                     </div>
-
                     <div
                       className="cp-palette"
                       style={{ background: MARCA_COLORS[producto.brand] }}
@@ -220,7 +218,6 @@ export default function ColchoneriaPage() {
                   <div className="cp-card-body">
                     <h5 className="text-truncate">{producto.name}</h5>
                     <p className="cp-description">{producto.description}</p>
-
                     <div className="mb-2 cp-price">
                       <span className="fw-bold text-success">
                         €{finalPrice.toFixed(2)}
@@ -233,15 +230,10 @@ export default function ColchoneriaPage() {
                         <button
                           key={m}
                           className={`btn btn-sm ${
-                            measure === m
-                              ? "btn-primary"
-                              : "btn-outline-primary"
+                            measure === m ? "btn-primary" : "btn-outline-primary"
                           }`}
                           onClick={() =>
-                            setSelectedMeasures((prev) => ({
-                              ...prev,
-                              [producto.id]: m,
-                            }))
+                            setSelectedMeasures((prev) => ({ ...prev, [producto.id]: m }))
                           }
                         >
                           {m}
@@ -260,7 +252,6 @@ export default function ColchoneriaPage() {
                       >
                         ❤️
                       </button>
-
                       <button
                         className="btn btn-success btn-sm"
                         onClick={() => handleAddToCart(producto)}
@@ -298,10 +289,7 @@ export default function ColchoneriaPage() {
       </div>
 
       {authModalOpen && (
-        <AuthModal
-          show={authModalOpen}
-          onClose={() => setAuthModalOpen(false)}
-        />
+        <AuthModal show={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       )}
     </section>
   );

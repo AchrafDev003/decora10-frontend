@@ -111,9 +111,12 @@ export default function CartIcon() {
                     <div className="flex-grow-1">
                       <strong>{item.name}</strong>
                       <div className="small fs-5">
-                        Cantidad: {item.quantity || 0} - €
-                        {((item.promo_price ?? item.price) * (item.quantity || 0)).toFixed(2)}
-                      </div>
+  Cantidad: {item.quantity || 0}
+  {item.measure ? ` - Medida: ${item.measure}` : ""}
+  {" - €"}
+  {item.price?.toFixed(2) || ((item.promo_price ?? item.price) * (item.quantity || 0)).toFixed(2)}
+</div>
+
                     </div>
                     <button
                       className="btn btn-sm btn-outline-danger ms-2"

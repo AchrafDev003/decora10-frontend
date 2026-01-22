@@ -4,13 +4,12 @@ import { toast } from "react-hot-toast";
 import { useAuth } from "../AuthContext";
 import {
   getCart as apiGetCart,
+  getCartTotal as apiGetCartTotal,
   addToCart as apiAddToCart,
-  updateCart as apiUpdateCart,
+  updateCartItem as apiUpdateCartItem,
   removeFromCart as apiRemoveFromCart,
   emptyCart as apiEmptyCart,
-  getCartTotal as apiGetCartTotal,
 } from "../../services/api";
-
 
 const CartContext = createContext();
 
@@ -19,12 +18,12 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState({ items: [], total: 0 });
 
   // ------------------- Helper para calcular total en frontend -------------------
-  const calcCartTotal = (items) =>
-    items?.reduce(
-      (sum, item) =>
-        sum + (item.price || item.product?.promo_price || item.product?.price || 0) * item.quantity,
-      0
-    ) || 0;
+  // ------------------- Helper para calcular total en frontend -------------------
+// src/context/CartContext.jsx
+const calcCartTotal = (items) =>
+  items?.reduce((sum, item) => sum + (item.price ?? 0), 0) || 0;
+
+
 
   // ------------------- Sincronizar carrito invitado al login -------------------
   const syncCartWithUser = useCallback(
@@ -32,7 +31,12 @@ export const CartProvider = ({ children }) => {
       if (!user || !guestCart.length) return;
       try {
         await Promise.all(
-          guestCart.map((item) => apiAddToCart(item.product_id, item.quantity))
+          guestCart.map((item) => apiAddToCart({
+            item_id: item.id,
+            quantity: item.quantity,
+            type: item.type || "product",
+            measure: item.measure || null,
+          }))
         );
         localStorage.removeItem("guestCart");
         await fetchCart();
@@ -47,65 +51,68 @@ export const CartProvider = ({ children }) => {
 
   // ------------------- Obtener carrito -------------------
   const fetchCart = useCallback(async () => {
-    try {
-
-      const res = await apiGetCart();
-      if (res.success && res.data) {
-        const totalRes = await apiGetCartTotal();
-        const total = totalRes.success ? totalRes.data.total : calcCartTotal(res.data.items);
-        setCart({ items: res.data.items || [], total });
-      } else {
-        setCart({ items: [], total: 0 });
-      }
-    } catch (err) {
-      console.error("Error fetching cart:", err);
+  try {
+    const res = await apiGetCart();
+    console.log("fetchCart response:", res);
+    if (res.success && res.data) {
+      const items = res.data.items || [];
+      const total = calcCartTotal(items); // Suma de subtotales ya calculados
+      setCart({ items, total });
+    } else {
       setCart({ items: [], total: 0 });
     }
-  }, [user]);
+  } catch (err) {
+    console.error("Error fetching cart:", err);
+    setCart({ items: [], total: 0 });
+  }
+}, [user]);
+
 
   // ------------------- Añadir al carrito -------------------
- const addToCart = async (product, quantity = 1) => {
-  if (!product?.id) {
-    toast.error("Producto inválido");
-    return;
-  }
+  const addToCart = async (item_id, quantity = 1, type = "product", measure = null) => {
+    if (!item_id) {
+      toast.error("Producto inválido");
+      return;
+    }
 
-  try {
-    
-
-    // Usuario autenticado: llamar a la API
-    const res = await apiAddToCart(product.id, quantity); // POST /cart/items/{id} {quantity}
-           console.log("addToCart response:", res);
-    if (res.success) {
-      toast.success("Producto añadido al carrito");
-      await fetchCart(); // refresca el carrito del backend
-    } 
-  } catch (err) {
-    console.error("Error al añadir al carrito:", err);
-    toast.error("No se pudo añadir al carrito");
-  }
-};
+    try {
+      const res = await apiAddToCart({ item_id, quantity, type, measure });
+      if (res.success) {
+        toast.success(`${type === "pack" ? "Pack" : "Producto"} añadido al carrito`);
+        await fetchCart();
+      } else {
+        toast.error(res.message || "No se pudo añadir al carrito");
+      }
+    } catch (err) {
+      console.error("Error al añadir al carrito:", err);
+      toast.error("No se pudo añadir al carrito");
+    }
+  };
 
   // ------------------- Actualizar cantidad -------------------
-  const updateCartItem = async (productId, quantity) => {
+  const updateCartItem = async (itemId, quantity, measure = null) => {
+    if (!itemId || quantity < 1) return;
     try {
-      if (!user) return;
-      await apiUpdateCart(productId, quantity); // PUT /cart/items/{id} {quantity}
-      await fetchCart();
+      const res = await apiUpdateCartItem(itemId, { quantity, measure });
+      if (res.success) await fetchCart();
+      else toast.error(res.message || "No se pudo actualizar la cantidad");
     } catch (err) {
-      console.error(err);
+      console.error("Error al actualizar el carrito:", err);
       toast.error("No se pudo actualizar la cantidad");
     }
   };
 
   // ------------------- Eliminar producto -------------------
-  const removeCartItem = async (productId) => {
+  const removeCartItem = async (itemId) => {
+    if (!itemId) return;
     try {
-     
-
-      await apiRemoveFromCart(productId); // DELETE /cart/items/{id}
-      toast.success("Producto eliminado del carrito");
-      await fetchCart();
+      const res = await apiRemoveFromCart(itemId);
+      if (res.success) {
+        toast.success("Producto eliminado del carrito");
+        await fetchCart();
+      } else {
+        toast.error(res.message || "No se pudo eliminar el producto");
+      }
     } catch (err) {
       console.error(err);
       toast.error("No se pudo eliminar el producto");
@@ -115,42 +122,22 @@ export const CartProvider = ({ children }) => {
   // ------------------- Vaciar carrito -------------------
   const clearCart = async () => {
     try {
-      
-
-      await apiEmptyCart(); // DELETE /cart
-      toast.success("Carrito vaciado");
-      await fetchCart();
+      const res = await apiEmptyCart();
+      if (res.success) {
+        toast.success("Carrito vaciado");
+        setCart({ items: [], total: 0 });
+      } else {
+        toast.error(res.message || "No se pudo vaciar el carrito");
+      }
     } catch (err) {
       console.error(err);
       toast.error("No se pudo vaciar el carrito");
     }
   };
 
-  // ------------------- Checkout -------------------
-  const checkout = async (data) => {
-    try {
-      if (!user) {
-        toast.error("Debes iniciar sesión para realizar el checkout");
-        return { success: false, error: "No autenticado" };
-      }
-
-      const res = await apiEmptyCart(data); // POST /cart/checkout
-      if (res.success) {
-        setCart({ items: [], total: 0 });
-        toast.success("Orden creada correctamente");
-      }
-      return res;
-    } catch (err) {
-      console.error(err);
-      toast.error("Error al procesar el checkout");
-      return { success: false, error: err.message };
-    }
-  };
-
   // ------------------- Inicialización -------------------
   useEffect(() => {
     const guestCart = JSON.parse(localStorage.getItem("guestCart") || "[]");
-
     if (user) {
       if (guestCart.length) syncCartWithUser(guestCart);
       else fetchCart();
@@ -170,7 +157,6 @@ export const CartProvider = ({ children }) => {
         clearCart,
         fetchCart,
         syncCartWithUser,
-        checkout,
       }}
     >
       {children}

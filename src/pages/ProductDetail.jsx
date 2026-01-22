@@ -5,7 +5,7 @@ import {
   getProductById,
   getReviews,
   createReview,
-  addToCart,
+  addToCart as apiAddToCart,
   addFavorite,
   removeFavorite,
   getProductsFiltrados,
@@ -21,7 +21,7 @@ import "../css/ProductDetail.css";
 
 export default function ProductDetail() {
   const { id } = useParams();
-  const { fetchCart } = useCart();
+  const { fetchCart, addToCart } = useCart(); // ✅ Hook al nivel superior
   const scrollRef = useRef(null);
 
   const [shadow, setShadow] = useState({ left: false, right: true });
@@ -38,7 +38,6 @@ export default function ProductDetail() {
   const [showImageModal, setShowImageModal] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // Medidas de Colchonería
   const MEASURE_ADJUST = { "90x190": -100, "135x190": 0, "150x190": 80 };
   const [selectedMeasure, setSelectedMeasure] = useState("135x190");
   const [isMobile, setIsMobile] = useState(false);
@@ -143,75 +142,20 @@ export default function ProductDetail() {
     }
   };
 
- const handleAddToCart = async (producto) => {
-  const user = JSON.parse(localStorage.getItem("user") || "null");
-  const token = localStorage.getItem("token");
+  const handleAddToCart = async (producto) => {
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    if (!user) { setShowLoginModal(true); return; }
 
-  if (!user || !token) {
-    setShowLoginModal(true);
-    return;
-  }
+    const type = producto.isPack ? "pack" : "product";
 
-  // Determinar tipo: pack o product
-  const type = producto.isPack ? "pack" : "product";
-
-  // Payload mínimo requerido por backend
-  const payload = {
-    id: producto.id,
-    type: type,
-    quantity: 1,
-  };
-
-  // Añadir medida si es colchón
-if (producto.category?.id === 76) {
-  payload.measure = selectedMeasure;
-}
-
-  // Enviar al backend
-  const res = await addToCart(payload.id, payload.quantity, type, payload.measure);
-
-  if (res.success) {
-    await fetchCart();
-    toast.success("Producto añadido al carrito");
-  } else {
-    toast.error(res.error);
-  }
-
-  // Gestión de carrito local para guest
-  if (!user) {
-    let localCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const exists = localCart.find(
-      (p) => p.product_id === producto.id && p.measure === selectedMeasure
-    );
-
-    if (exists) {
-      if (exists.quantity >= 3) {
-        toast.error("Máximo 3 unidades por producto");
-        return;
-      }
-      exists.quantity++;
-    } else {
-      const firstImage = producto.images?.[0]?.image_path
-        ? getImageUrl(producto.images[0].image_path)
-        : "/images/placeholder.png";
-
-      localCart.push({
-        product_id: producto.id,
-        name: producto.name,
-        price: producto.promo_price ?? producto.price ?? 0,
-        quantity: 1,
-        image: firstImage,
-        measure: selectedMeasure,
-        type: type,
-      });
+    try {
+      await addToCart(producto.id, 1, type, producto.category?.id === 76 ? selectedMeasure : null);
+      toast.success("Producto añadido al carrito");
+    } catch (err) {
+      console.error(err);
+      toast.error("Error al añadir el producto al carrito");
     }
-
-    localStorage.setItem("cart", JSON.stringify(localCart));
-    await fetchCart();
-    toast.success("Producto añadido al carrito (guest)");
-  }
-};
-
+  };
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -219,8 +163,7 @@ if (producto.category?.id === 76) {
     if (comment.trim().length < 5) return toast.error("El comentario debe tener al menos 5 caracteres");
 
     const user = JSON.parse(localStorage.getItem("user") || "null");
-    const token = localStorage.getItem("token");
-    if (!user || !token) { setShowLoginModal(true); return; }
+    if (!user) { setShowLoginModal(true); return; }
 
     const res = await createReview(id, { rating, comment });
     if (res.success) {
@@ -234,7 +177,6 @@ if (producto.category?.id === 76) {
   if (loading) return <div className="container text-center py-5"><p>Cargando producto...</p></div>;
   if (!producto) return <div className="container text-center py-5"><p>No se encontró el producto.</p></div>;
 
-  // Precio dinámico
   const basePrice = producto.promo_price ?? producto.price ?? 0;
   const finalPrice = producto.category?.id === 76
     ? basePrice + (MEASURE_ADJUST[selectedMeasure] ?? 0)

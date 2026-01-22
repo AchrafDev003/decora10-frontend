@@ -242,56 +242,55 @@ export const removeFavorite = (productId) => handleRequest(api.delete(`/favorite
 // ===============================
 // 🔹 CART
 // ===============================
+
 // Ver carrito
 export const getCart = async () => {
   try {
-    const res = await api.get("/cart", { headers: getAuthHeader() });
+    const res = await api.get("/cart", {
+      headers: getAuthHeader(),
+    });
     return res.data;
   } catch (err) {
     console.error("getCart error:", err);
-    return { success: false, error: err.message };
+    return { success: false, message: err.message };
   }
 };
 
 // Total del carrito
 export const getCartTotal = async () => {
   try {
-    const res = await api.get("/cart/total", { headers: getAuthHeader() });
+    const res = await api.get("/cart/total", {
+      headers: getAuthHeader(),
+    });
     return res.data;
   } catch (err) {
     console.error("getCartTotal error:", err);
-    return { success: false, error: err.message };
+    return { success: false, message: err.message };
   }
 };
 
-// Añadir producto
-// ===============================
-// 🔹 Añadir producto o pack al carrito
-// ===============================
 // ===============================
 // 🔹 Añadir item al carrito
+// POST /cart/items
 // ===============================
-export const addToCart = async (
-  itemId,
+export const addToCart = async ({
+  item_id,
   quantity = 1,
   type = "product",
-  measure = null
-) => {
+  measure = null,
+}) => {
   try {
     const payload = {
-      id: itemId,
-      type,
-      quantity,
-      measure: measure ?? null, // 🔥 SIEMPRE
-    };
+  id: item_id, // coincide con lo que espera el backend
+  quantity,
+  type,
+  measure,
+};
 
-    const res = await api.post(
-      `/cart/items/${itemId}`,
-      payload,
-      { headers: getAuthHeader() }
-    );
+    const res = await api.post("/cart/items", payload, {
+      headers: getAuthHeader(),
+    });
 
-    console.log("addToCart response:", res.data);
     return res.data;
   } catch (err) {
     console.error("addToCart error:", err.response?.data || err.message);
@@ -302,33 +301,30 @@ export const addToCart = async (
   }
 };
 
-
 // ===============================
-// 🔹 Actualizar cantidad de un item
+// 🔹 Actualizar item
+// PUT /cart/items/{item}
 // ===============================
-export const updateCart = async (
+export const updateCartItem = async (
   itemId,
-  quantity = 1,
-  type = "product",
-  measure = null
+  {
+    quantity,
+    measure = null,
+  }
 ) => {
   try {
     const payload = {
-      id: itemId,
-      type,
       quantity,
-      measure: measure ?? null, // 🔥 SIEMPRE
+      measure,
     };
 
-    const res = await api.put(
-      `/cart/items/${itemId}`,
-      payload,
-      { headers: getAuthHeader() }
-    );
+    const res = await api.put(`/cart/items/${itemId}`, payload, {
+      headers: getAuthHeader(),
+    });
 
     return res.data;
   } catch (err) {
-    console.error("updateCart error:", err.response?.data || err.message);
+    console.error("updateCartItem error:", err.response?.data || err.message);
     return {
       success: false,
       message: err.response?.data?.message || err.message,
@@ -337,23 +333,14 @@ export const updateCart = async (
 };
 
 // ===============================
-// 🔹 Eliminar item del carrito
+// 🔹 Eliminar item
+// DELETE /cart/items/{item}
 // ===============================
-export const removeFromCart = async (
-  itemId,
-  type = "product",
-  measure = null
-) => {
+export const removeFromCart = async (itemId) => {
   try {
     const res = await api.delete(`/cart/items/${itemId}`, {
       headers: getAuthHeader(),
-      data: {
-        id: itemId,
-        type,
-        measure: measure ?? null, // 🔥 IMPORTANTE
-      },
     });
-
     return res.data;
   } catch (err) {
     console.error("removeFromCart error:", err.response?.data || err.message);
@@ -366,14 +353,20 @@ export const removeFromCart = async (
 
 // ===============================
 // 🔹 Vaciar carrito
+// DELETE /cart
 // ===============================
 export const emptyCart = async () => {
   try {
-    const res = await api.delete("/cart", { headers: getAuthHeader() });
+    const res = await api.delete("/cart", {
+      headers: getAuthHeader(),
+    });
     return res.data;
   } catch (err) {
     console.error("emptyCart error:", err.response?.data || err.message);
-    return { success: false, error: err.response?.data?.message || err.message };
+    return {
+      success: false,
+      message: err.response?.data?.message || err.message,
+    };
   }
 };
 
