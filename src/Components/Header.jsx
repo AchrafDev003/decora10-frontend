@@ -143,6 +143,16 @@ const debouncedSearch = useDebounce(searchTerm, 350);
                 <li className="nav-item">
                   <NavLink to="/tienda" className="nav-link nav-link-custom" onClick={handleNavClick}><FaStore /> Tienda</NavLink>
                 </li>
+                {/* NUEVO LINK - PACKS LIMITADOS */}
+  <li className="nav-item">
+    <NavLink 
+      to="/packs-limitados" 
+      className="nav-link nav-link-custom" 
+      onClick={handleNavClick}
+    >
+      🎁 Packs Limitados
+    </NavLink>
+  </li>
 
                 {/* Dropdown Categorías */}
                 <li className="nav-item dropdown" ref={catRef}>

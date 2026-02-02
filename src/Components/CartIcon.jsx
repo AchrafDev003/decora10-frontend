@@ -14,6 +14,7 @@ export default function CartIcon() {
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
+  console.log("Cart Items:", cartItems);
 
   // Total de items
   const totalItems = useMemo(
@@ -103,7 +104,7 @@ export default function CartIcon() {
                     className="d-flex mb-2 border-bottom pb-2 align-items-center"
                   >
                     <img
-                      src={getImageUrl(item.images?.[0]?.image_path) ?? "/images/ITEM Home.jpg"}
+                      src={getImageUrl(item.image) ?? "/images/ITEM Home.jpg"}
                       alt={item.name}
                       style={{ width: "50px", height: "50px", objectFit: "cover" }}
                       className="me-2 rounded"

@@ -44,6 +44,8 @@ const Contact = lazy(() => import("./pages/Contact.jsx"));
 const Privacy = lazy(() => import("./pages/PrivacyPolicy.jsx"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail.jsx"));
 const PoliticaDevoluciones = lazy(() => import("./pages/PoliticaDevoluciones.jsx"));
+const LimitedPacks = lazy(() => import("./pages/LimitedPacks.jsx"));
+
 
 
 function AppContent() {
@@ -95,6 +97,8 @@ function AppContent() {
           <Route path="/politica-privacidad" element={<Privacy />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/politica-devoluciones" element={<PoliticaDevoluciones />} />
+          <Route path="/packs-limitados" element={<LimitedPacks />} />
+
           
 
 <Route path="/colchoneria" element={<ColchoneriaPage />} />

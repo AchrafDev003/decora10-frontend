@@ -91,7 +91,7 @@ const Cart = () => {
       <tr key={item.id}>
         <td className="d-flex align-items-center gap-3">
           <img
-            src={getImageUrl(item.images?.[0]?.image_path) || "/images/ITEM Home.jpg"}
+            src={getImageUrl(item.image) || "/images/ITEM Home.jpg"}
             alt={item.name}
             className="rounded shadow-sm"
             style={{ width: "80px", height: "80px", objectFit: "cover" }}

@@ -231,6 +231,12 @@ export const quickSearch = (query) =>
     })
   );
 
+  // ===============================
+// 🔹 PACKS LIMITADOS
+// ===============================
+export const getLimitedPacks = () => handleRequest(api.get("/packs/limited"));
+
+
 
 // ===============================
 // 🔹 FAVORITES
@@ -274,18 +280,20 @@ export const getCartTotal = async () => {
 // POST /cart/items
 // ===============================
 export const addToCart = async ({
-  item_id,
+  id,               // 🔹 cambiar item_id por id
   quantity = 1,
   type = "product",
   measure = null,
 }) => {
+  if (!id) throw new Error("addToCart: id inválido");
+
   try {
     const payload = {
-  id: item_id, // coincide con lo que espera el backend
-  quantity,
-  type,
-  measure,
-};
+      id,       // ahora siempre coincide con lo que espera el backend
+      quantity,
+      type,
+      measure,
+    };
 
     const res = await api.post("/cart/items", payload, {
       headers: getAuthHeader(),

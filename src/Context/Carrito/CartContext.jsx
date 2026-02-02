@@ -1,10 +1,8 @@
-// src/context/CartContext.jsx
 import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../AuthContext";
 import {
   getCart as apiGetCart,
-  getCartTotal as apiGetCartTotal,
   addToCart as apiAddToCart,
   updateCartItem as apiUpdateCartItem,
   removeFromCart as apiRemoveFromCart,
@@ -17,15 +15,50 @@ export const CartProvider = ({ children }) => {
   const { user } = useAuth();
   const [cart, setCart] = useState({ items: [], total: 0 });
 
-  // ------------------- Helper para calcular total en frontend -------------------
-  // ------------------- Helper para calcular total en frontend -------------------
-// src/context/CartContext.jsx
-const calcCartTotal = (items) =>
-  items?.reduce((sum, item) => sum + (item.price ?? 0), 0) || 0;
+  // Calcular total
+  const calcCartTotal = (items) =>
+    items?.reduce((sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 1), 0) || 0;
 
+  // Obtener carrito
+  const fetchCart = useCallback(async () => {
+    try {
+      const res = await apiGetCart();
+      if (res.success && res.data) {
+        const items = res.data.items || [];
+        console.log("Carrito cargado:", items);
+        setCart({ items, total: calcCartTotal(items) });
+      } else {
+        setCart({ items: [], total: 0 });
+      }
+    } catch (err) {
+      console.error("Error fetching cart:", err);
+      setCart({ items: [], total: 0 });
+    }
+  }, []);
 
+  // Añadir al carrito
+  const addToCart = async ({ id, quantity = 1, type = "product", measure = null }) => {
+    if (!id) {
+      toast.error("Elemento inválido");
+      return;
+    }
 
-  // ------------------- Sincronizar carrito invitado al login -------------------
+    try {
+      const payload = { id, quantity, type, measure };
+      const res = await apiAddToCart(payload);
+
+      if (res.success) {
+        toast.success(type === "pack" ? "Pack añadido al carrito" : "Producto añadido al carrito");
+        await fetchCart();
+      } else {
+        toast.error(res.message || "No se pudo añadir al carrito");
+      }
+    } catch (err) {
+      console.error("addToCart error:", err);
+      toast.error("No se pudo añadir al carrito");
+    }
+  };
+ // ------------------- Sincronizar carrito invitado al login -------------------
   const syncCartWithUser = useCallback(
     async (guestCart = []) => {
       if (!user || !guestCart.length) return;
@@ -49,60 +82,20 @@ const calcCartTotal = (items) =>
     [user]
   );
 
-  // ------------------- Obtener carrito -------------------
-  const fetchCart = useCallback(async () => {
-  try {
-    const res = await apiGetCart();
-    console.log("fetchCart response:", res);
-    if (res.success && res.data) {
-      const items = res.data.items || [];
-      const total = calcCartTotal(items); // Suma de subtotales ya calculados
-      setCart({ items, total });
-    } else {
-      setCart({ items: [], total: 0 });
-    }
-  } catch (err) {
-    console.error("Error fetching cart:", err);
-    setCart({ items: [], total: 0 });
-  }
-}, [user]);
-
-
-  // ------------------- Añadir al carrito -------------------
-  const addToCart = async (item_id, quantity = 1, type = "product", measure = null) => {
-    if (!item_id) {
-      toast.error("Producto inválido");
-      return;
-    }
-
-    try {
-      const res = await apiAddToCart({ item_id, quantity, type, measure });
-      if (res.success) {
-        toast.success(`${type === "pack" ? "Pack" : "Producto"} añadido al carrito`);
-        await fetchCart();
-      } else {
-        toast.error(res.message || "No se pudo añadir al carrito");
-      }
-    } catch (err) {
-      console.error("Error al añadir al carrito:", err);
-      toast.error("No se pudo añadir al carrito");
-    }
-  };
-
-  // ------------------- Actualizar cantidad -------------------
+  // Actualizar item
   const updateCartItem = async (itemId, quantity, measure = null) => {
     if (!itemId || quantity < 1) return;
     try {
       const res = await apiUpdateCartItem(itemId, { quantity, measure });
       if (res.success) await fetchCart();
-      else toast.error(res.message || "No se pudo actualizar la cantidad");
+      else toast.error(res.message || "No se pudo actualizar el carrito");
     } catch (err) {
-      console.error("Error al actualizar el carrito:", err);
-      toast.error("No se pudo actualizar la cantidad");
+      console.error(err);
+      toast.error("No se pudo actualizar el carrito");
     }
   };
 
-  // ------------------- Eliminar producto -------------------
+  // Eliminar item
   const removeCartItem = async (itemId) => {
     if (!itemId) return;
     try {
@@ -119,7 +112,7 @@ const calcCartTotal = (items) =>
     }
   };
 
-  // ------------------- Vaciar carrito -------------------
+  // Vaciar carrito
   const clearCart = async () => {
     try {
       const res = await apiEmptyCart();
@@ -135,28 +128,38 @@ const calcCartTotal = (items) =>
     }
   };
 
-  // ------------------- Inicialización -------------------
+  // Inicialización: carrito invitado o usuario logueado
   useEffect(() => {
     const guestCart = JSON.parse(localStorage.getItem("guestCart") || "[]");
     if (user) {
-      if (guestCart.length) syncCartWithUser(guestCart);
-      else fetchCart();
+      if (guestCart.length) {
+        // Sincroniza carrito invitado al login
+        Promise.all(
+          guestCart.map((item) =>
+            addToCart({
+              id: item.id,
+              quantity: item.quantity,
+              type: item.type || "product",
+              measure: item.measure || null,
+            })
+          )
+        ).then(() => localStorage.removeItem("guestCart"));
+      } else fetchCart();
     } else if (guestCart.length) {
       setCart({ items: guestCart, total: calcCartTotal(guestCart) });
     }
-  }, [user, syncCartWithUser, fetchCart]);
+  }, [user]);
 
   return (
     <CartContext.Provider
       value={{
-        cartItems: cart.items || [],
-        total: cart.total || 0,
+        cartItems: cart.items,
+        total: cart.total,
         addToCart,
         updateCartItem,
         removeCartItem,
         clearCart,
         fetchCart,
-        syncCartWithUser,
       }}
     >
       {children}
