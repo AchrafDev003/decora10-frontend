@@ -15,10 +15,9 @@
   background-image: none;
   border: solid var(--bs-black);
   border-width: 0 3px 3px 0;
+  width: 28px;
+  height: 28px;
   display: inline-block;
-  width: 30px;
-  height: 30px;
-  padding: 6px;
 }
 
 .carousel-control-prev-icon {
@@ -30,11 +29,11 @@
 }
 
 /* =====================================================
-   PRODUCT IMAGE (BASE – DESKTOP FIRST)
+   PRODUCT IMAGE
 ===================================================== */
 .product-image-wrapper {
   width: 100%;
-  height: 420px;
+  aspect-ratio: 4 / 3; /* 🔥 clave para responsive */
   background: linear-gradient(135deg, #bfa800 0%, #e9ecef 100%);
   border-radius: 14px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
@@ -42,17 +41,18 @@
   align-items: center;
   justify-content: center;
   cursor: zoom-in;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s ease;
 }
 
-.product-image-wrapper:hover {
-  transform: scale(1.02);
+@media (hover: hover) {
+  .product-image-wrapper:hover {
+    transform: scale(1.02);
+  }
 }
 
 .product-image {
   width: 100%;
-  max-width: 460px;
-  height: 380px;
+  max-width: 420px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,19 +60,19 @@
 
 .product-image img {
   width: 100%;
-  max-width: 420px;
-  max-height: 360px;
-  border-radius: 14px;
+  max-height: 90%;
+  border-radius: 12px;
   object-fit: contain;
 }
 
 /* =====================================================
-   PRODUCT DESCRIPTION (READ MORE)
+   PRODUCT DESCRIPTION
 ===================================================== */
 .product-description {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 4;
+
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-word;
@@ -84,15 +84,17 @@
 }
 
 /* =====================================================
-   RELATED PRODUCTS (CARDS + HOVER)
+   RELATED PRODUCTS
 ===================================================== */
 .related-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.related-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+@media (hover: hover) {
+  .related-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .related-img-wrapper {
@@ -106,11 +108,13 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.25);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
-.related-img-wrapper:hover .related-overlay {
-  opacity: 1;
+@media (hover: hover) {
+  .related-img-wrapper:hover .related-overlay {
+    opacity: 1;
+  }
 }
 
 /* =====================================================
@@ -121,72 +125,49 @@
   gap: 1rem;
   overflow-x: auto;
   padding-bottom: 0.75rem;
-  scroll-behavior: smooth;
+
   scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+
   scrollbar-width: thin;
   scrollbar-color: #c1a200 #f0e9da;
-  -webkit-overflow-scrolling: touch;
 }
 
 .related-scrollbar > * {
   scroll-snap-align: start;
 }
 
+/* Chrome */
 .related-scrollbar::-webkit-scrollbar {
-  height: 10px;
+  height: 8px;
 }
 
 .related-scrollbar::-webkit-scrollbar-track {
-  background: linear-gradient(90deg, #f8f8f8, #f0e9da);
+  background: #f0e9da;
   border-radius: 10px;
 }
 
 .related-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #d6d31b, #bca100);
+  background: #bca100;
   border-radius: 10px;
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-}
-
-.related-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #bfa800, #a88f00);
 }
 
 /* =====================================================
-   TABLET (768px – 1199px)
+   TABLET
 ===================================================== */
 @media (max-width: 1199px) {
   .product-image-wrapper {
-    height: 360px;
-  }
-
-  .product-image {
-    max-width: 380px;
-    height: 320px;
-  }
-
-  .product-image img {
-    max-width: 340px;
-    max-height: 300px;
+    aspect-ratio: 4 / 3;
   }
 }
 
 /* =====================================================
-   MOBILE (≤ 767px)
+   MOBILE
 ===================================================== */
 @media (max-width: 767px) {
   .product-image-wrapper {
-    height: 280px;
+    aspect-ratio: 1 / 1;
     border-radius: 12px;
-  }
-
-  .product-image {
-    max-width: 260px;
-    height: 240px;
-  }
-
-  .product-image img {
-    max-width: 230px;
-    max-height: 210px;
   }
 
   .related-scrollbar {
