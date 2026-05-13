@@ -6,8 +6,9 @@ import Confetti from "react-confetti";
 import { toast } from "react-hot-toast";
 import { checkoutCart, validateCoupon } from "../services/api";
 import { useAuth } from "../Context/AuthContext";
+import { initGetnetPayment } from "../services/api";
 
-import PaymentForm from "../Components/PaymentForm";
+
 import "../css/Checkout.css";
 
 // -------------------------------
@@ -149,16 +150,9 @@ const Checkout = () => {
   // -------------------------------
   // Opciones de pago
   // -------------------------------
-  const computePaymentOptions = (type, country, userLoc) => {
-    const options = [];
-    if (type === "domicilio") {
-      options.push({ value: "card", label: "Tarjeta (card)" });
-    } else {
-      options.push({ value: "cash", label: "Contra reembolso" });
-      options.push({ value: "card", label: "Tarjeta (card)" });
-    }
-    return options;
-  };
+  const computePaymentOptions = () => [
+  { value: "card", label: "Pago con tarjeta" },
+];
 
   const paymentOptions = useMemo(
     () => computePaymentOptions(formData.type, formData.country, userLocation),
@@ -253,66 +247,113 @@ const Checkout = () => {
   // -------------------------------
   // Checkout / Orden
   // -------------------------------
-  const handleOrder = async (paymentIntent = null) => {
-    if (processingOrder) return;
-    setProcessingOrder(true);
+  const handleOrder = async () => {
+  if (processingOrder) return;
+  setProcessingOrder(true);
 
-    try {
-      if (!user?.id) throw new Error("Debes iniciar sesión.");
-      if (!cartItems.length) throw new Error("Tu carrito está vacío.");
-      if (["card", "bizum"].includes(formData.payment_method) && !paymentIntent?.id)
-        throw new Error("El pago no ha sido confirmado.");
-      if (formData.type === "domicilio" && !formData.line1?.trim())
-        throw new Error("Introduce tu dirección completa.");
-      if (!formData.mobile1?.trim()) throw new Error("Debes indicar al menos un número de teléfono.");
+  try {
+    if (!user?.id) throw new Error("Debes iniciar sesión.");
+    if (!cartItems.length) throw new Error("Tu carrito está vacío.");
+    if (formData.type === "domicilio" && !formData.line1?.trim())
+      throw new Error("Introduce tu dirección completa.");
+    if (!formData.mobile1?.trim())
+      throw new Error("Debes indicar un teléfono.");
 
-      console.log("Iniciando proceso de orden...", formData);
+    const orderPayload = {
+      payment_method: formData.payment_method,
+      line1: formData.line1,
+      line2: formData.line2 || null,
+      city: formData.city,
+      zipcode: formData.zipcode || null,
+      country: formData.country,
+      mobile1: formData.mobile1,
+      mobile2: formData.mobile2 || null,
+      additional_info: formData.additional_info || "",
+      type: formData.type,
+      promo_code: couponCode?.trim() || null,
 
-      const orderPayload = {
-        payment_intent: paymentIntent?.id || null,
-        payment_method: formData.payment_method,
-        line1: formData.line1,
-        line2: formData.line2 || null,
-        city: formData.city,
-        zipcode: formData.zipcode || null,
-        country: formData.country,
-        mobile1: formData.mobile1,
-        mobile2: formData.mobile2 || null,
-        additional_info: formData.additional_info || "",
-        type: formData.type,
-        promo_code: couponCode?.trim() || null,
-        items: cartItems.map((item) => ({
-          product_id: item.type === "product" ? item.entity_id : null,
-          pack_id: item.type === "pack" ? item.entity_id : null,
-          quantity: item.quantity,
-          price: Number(item.promo_price ?? item.price),
-        })),
-        subtotal: subtotal,
-        discount: discountAmount,
-        transport_fee: transportFee,
-        total: finalTotal,
-        coupon_type: discountData.type,
-      };
+      items: cartItems.map((item) => ({
+        product_id: item.type === "product" ? item.entity_id : null,
+        pack_id: item.type === "pack" ? item.entity_id : null,
+        quantity: item.quantity,
+        price: Number(item.promo_price ?? item.price),
+      })),
 
-      console.log("📦 Checkout payload:", orderPayload);
+      subtotal: subtotal,
+      discount: discountAmount,
+      transport_fee: transportFee,
+      total: finalTotal,
+      coupon_type: discountData.type,
+    };
 
-      const res = await checkoutCart(orderPayload);
-      if (!res?.success) throw new Error(res?.error || "No se pudo completar el pedido.");
+    console.log("📦 Creando pedido...", orderPayload);
 
-      toast.success("✅ Pedido confirmado");
-      await clearCart();
-      setOrderPlaced(true);
+    // 1️⃣ Crear pedido
+    const orderRes = await checkoutCart(orderPayload);
+    console.log("Respuesta crear pedido:", orderRes);
 
-      setTimeout(() => {
-        navigate("/gracias", { state: { orderCode: res.data?.tracking_number } });
-      }, 1200);
-    } catch (err) {
-      console.error("❌ Error en handleOrder:", err);
-      toast.error(err.message || "Error inesperado. Inténtalo más tarde.");
-    } finally {
-      setProcessingOrder(false);
+    if (!orderRes?.success) {
+      throw new Error(orderRes?.error || "Error creando pedido");
     }
-  };
+
+    const orderId = orderRes.data.order.id;
+
+    // 2️⃣ Pedir datos Getnet
+   const paymentRes = await initGetnetPayment({
+  order_id: orderId,
+});
+
+if (!paymentRes.success) {
+  throw new Error(paymentRes.error || "Error iniciando pago");
+}
+        // console.log("Respuesta Getnet:", paymentRes);
+
+// ⚠️ En tu API real viene dentro de data.data
+const paymentData = paymentRes.data;
+     console.log("Respuesta Getnet:", paymentData);
+
+if (!paymentData?.gatewayUrl || !paymentData?.params || !paymentData?.signature) {
+  throw new Error("Respuesta inválida de Getnet");
+}
+
+console.log(atob(paymentData.params));
+
+// 3️⃣ REDIRECT POST A GETNET
+const form = document.createElement("form");
+form.method = "POST";
+form.action = paymentData.gatewayUrl;
+
+const fields = {
+  Ds_SignatureVersion: paymentData.version,
+  Ds_MerchantParameters: paymentData.params,
+  Ds_Signature: paymentData.signature,
+};
+
+Object.entries(fields).forEach(([key, value]) => {
+  const input = document.createElement("input");
+  input.type = "hidden";
+  input.name = key;
+  input.value = value;
+  form.appendChild(input);
+});
+
+// 🔥 DEBUG CORRECTO (usa paymentData, no variables inexistentes)
+console.log("GETNET URL:", paymentData.gatewayUrl);
+console.log("PARAMS:", paymentData.params);
+console.log("SIGNATURE:", paymentData.signature);
+
+setTimeout(() => {
+  document.body.appendChild(form);
+  form.submit();
+}, 50);
+
+  } catch (err) {
+    console.error("❌ Error:", err);
+    toast.error(err.message || "Error en el checkout");
+  } finally {
+    setProcessingOrder(false);
+  }
+};
 
   // -------------------------------
   // RENDER
@@ -450,26 +491,13 @@ const Checkout = () => {
           </select>
 
           {/* Integración Stripe */}
-          {["card", "bizum"].includes(formData.payment_method) && formData.mobile1.trim() ? (
-            <PaymentForm
-              totalAmount={finalTotal}
-              paymentMethod={formData.payment_method}
-              disabled={processingOrder}
-              onSuccess={(pi) => handleOrder(pi)}
-            />
-          ) : ["card", "bizum"].includes(formData.payment_method) ? (
-            <div className="alert alert-warning text-center">
-              Introduce tu número de teléfono para continuar con el pago
-            </div>
-          ) : (
-            <button
-              className="btn btn-neon w-100 py-3 animate__animated animate__pulse animate__infinite"
-              onClick={() => handleOrder(null)}
-              disabled={processingOrder}
-            >
-              {processingOrder ? "Procesando..." : "Finalizar Pedido"}
-            </button>
-          )}
+         <button
+  className="btn btn-neon w-100 py-3"
+  onClick={handleOrder}
+  disabled={processingOrder}
+>
+  {processingOrder ? "Redirigiendo..." : "Pagar ahora"}
+</button>
         </div>
 
         {/* RIGHT: Resumen */}
@@ -552,7 +580,7 @@ const Checkout = () => {
             <span role="img" aria-label="Transporte" className="fs-4">
               🚚
             </span>
-            <div>
+           <div>
   <p className="text-muted small">
     Logística: <strong>{cartLogisticType}</strong>
   </p>
@@ -589,5 +617,6 @@ const Checkout = () => {
     </div>
   );
 };
+
 
 export default Checkout;

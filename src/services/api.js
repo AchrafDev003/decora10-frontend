@@ -449,6 +449,14 @@ export const createPaymentIntent = async (payload) => {
   }
 };
 
+export const initGetnetPayment = async (payload) => {
+  return handleRequest(
+    api.post("/payment/getnet", payload, {
+      headers: getAuthHeader(),
+    })
+  );
+};
+
 
 
 

@@ -35,6 +35,7 @@ const Shop = lazy(() => import("./pages/Shop.jsx"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail.jsx"));
 const Cart = lazy(() => import("./pages/Cart.jsx"));
 const Checkout = lazy(() => import("./pages/Checkout.jsx"));
+const Checkout1 = lazy(() => import("./pages/checkout1.jsx"));
 const Profile = lazy(() => import("./pages/Profile.jsx"));
 const Register = lazy(() => import("./pages/Register.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound.jsx"));
@@ -91,7 +92,8 @@ function AppContent() {
           <Route path="/tienda" element={<Shop />} />
           <Route path="/producto/:id" element={<ProductDetail />} />
           <Route path="/carrito" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
+          {/* <Route path="/checkout" element={<Checkout />} /> */}
+          <Route path="/checkout" element={<Checkout1 />} />
           <Route path="/register" element={<Register />} />
           <Route path="/gracias" element={<Gracias />} />
           <Route path="/politica-privacidad" element={<Privacy />} />

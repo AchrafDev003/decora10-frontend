@@ -37,7 +37,7 @@ export default function Shop() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { addToCart } = useCart();
+  const { cartItems, addToCart } = useCart();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
@@ -184,25 +184,81 @@ export default function Shop() {
   // -------------------------------
 // Carrito
 // -------------------------------
-const handleAddToCart = async (producto) => {
+const handleAddToCart = async (product) => {
   if (!user) return setAuthModalOpen(true);
 
   try {
-    // Solo enviamos lo que CartContext espera: id, cantidad, tipo y medida
-    await addToCart(
-      producto.id,            // item_id
-      1,                      // quantity
-      "product",              // type (puede ser "pack" si es un pack)
-      producto.measure || null // medida
-    );
+    const existingItem = cartItems.find(item => item.product_id === product.id);
 
-    toast.success(`${producto.name} añadido al carrito`);
+    if (existingItem && existingItem.quantity >= 3) {
+      toast.info("Máximo 3 unidades por producto");
+      return;
+    }
+
+    const quantityToAdd = existingItem
+      ? Math.min(3 - existingItem.quantity, 1)
+      : 1;
+
+    await addToCart({
+      id: product.id,
+      type: "product",
+      quantity: quantityToAdd,
+      measure: product.measure || null,
+    });
+
+    toast.success(`${product.name} agregado al carrito`);
+
+    const card = document.getElementById(`product-card-${product.id}`);
+    const cartIcon = document.getElementById("cart-icon");
+
+    if (card && cartIcon) {
+      const clone = card.cloneNode(true);
+      clone.style.position = "fixed";
+
+      const rect = card.getBoundingClientRect();
+      clone.style.top = `${rect.top}px`;
+      clone.style.left = `${rect.left}px`;
+      clone.style.width = `${rect.width}px`;
+      clone.style.height = `${rect.height}px`;
+      clone.style.transition = "all 0.8s ease-in-out";
+      clone.style.zIndex = 9999;
+
+      document.body.appendChild(clone);
+
+      setTimeout(() => {
+        const cartRect = cartIcon.getBoundingClientRect();
+        clone.style.top = `${cartRect.top}px`;
+        clone.style.left = `${cartRect.left}px`;
+        clone.style.width = `40px`;
+        clone.style.height = `40px`;
+        clone.style.opacity = 0.5;
+      }, 10);
+
+      setTimeout(() => {
+        document.body.removeChild(clone);
+        cartIcon.classList.add("pulse");
+        setTimeout(() => cartIcon.classList.remove("pulse"), 300);
+      }, 820);
+    }
+
+    if (product.is_promo) {
+      confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
+    }
+
   } catch (err) {
     console.error(err);
     toast.error("No se pudo añadir al carrito");
   }
 };
 
+  const handleCategoryClick = (cat) => {
+    if (cat.name.toLowerCase() === "colchonería") {
+      navigate("/colchoneria");
+    } else {
+      navigate(`/productos/${cat.id}`);
+      setPage(1);
+    }
+  };
 
   // -------------------------------
   // Paginación
