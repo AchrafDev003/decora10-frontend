@@ -306,6 +306,7 @@ const Checkout = () => {
 if (!paymentRes.success) {
   throw new Error(paymentRes.error || "Error iniciando pago");
 }
+console.log("Respuesta Getnet:", paymentRes);
         // console.log("Respuesta Getnet:", paymentRes);
 
 // ⚠️ En tu API real viene dentro de data.data
@@ -344,6 +345,7 @@ console.log("SIGNATURE:", paymentData.signature);
 
 setTimeout(() => {
   document.body.appendChild(form);
+  console.log("el formulario enviado...", form);
   form.submit();
 }, 50);
 
